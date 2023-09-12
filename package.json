@@ -16,6 +16,10 @@
       {
         "command": "codeai.helloWorld",
         "title": "Hello World"
+      },
+      {
+        "command": "codeai.submit",
+        "title": "Submit"
       }
     ]
   },
@@ -39,5 +43,8 @@
     "mocha": "^10.2.0",
     "ts-node": "^10.9.1",
     "typescript": "^5.1.6"
+  },
+  "dependencies": {
+    "openai": "^4.6.0"
   }
 }
