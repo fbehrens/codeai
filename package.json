@@ -25,7 +25,7 @@
     "watch": "tsc -watch -p ./",
     "pretest": "npm run compile && npm run lint",
     "lint": "eslint src --ext ts",
-    "test": "mocha -r ts-node/register src/libtest/*.test.ts --watch --watch-files src/lib/*.ts,src/libtest/*.ts"
+    "test": "mocha -r ts-node/esm src/libtest/*.test.ts --watch --watch-files src/lib/*.ts,src/libtest/*.ts"
   },
   "devDependencies": {
     "@types/mocha": "^10.0.1",
