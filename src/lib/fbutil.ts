@@ -25,7 +25,7 @@ export default class Fbutil {
   }
   static parse(dialog: string): Message[] {
     const result: Message[] = [];
-    const paragraphs = dialog.split(/\n(?=[a-z]+:)/);
+    const paragraphs = dialog.split(/\n(?=function:|user:|system:|assistant:)/);
     for (const paragraph of paragraphs) {
       const colon = paragraph.indexOf(':');
       const r = paragraph.slice(0, colon);
