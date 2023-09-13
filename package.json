@@ -1,7 +1,12 @@
 {
   "name": "codeai",
+  "publisher": "fbehrens",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/fbehrens/codeai.git"
+  },
   "displayName": "codeai",
-  "description": "use ai",
+  "description": "use openai Chat Completion api wht the roles function,sytem,user nad assistant",
   "version": "0.0.1",
   "prettier": {
     "tabWidth": 2,
@@ -35,12 +40,8 @@
     },
     "commands": [
       {
-        "command": "codeai.helloWorld",
-        "title": "Hello World"
-      },
-      {
-        "command": "codeai.submit",
-        "title": "Submit"
+        "command": "codeai.chat_completion",
+        "title": "Codeai: Chat Completion"
       }
     ]
   },
