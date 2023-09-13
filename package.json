@@ -42,6 +42,10 @@
       {
         "command": "codai.chat_completion",
         "title": "Codai: Chat Completion"
+      },
+      {
+        "command": "codai.chat_completion_stream",
+        "title": "Codai: Streaming Chat Completion"
       }
     ]
   },

@@ -24,7 +24,8 @@ export default class Codai {
       vscode.window.showErrorMessage('No active text editor found.');
     }
   }
-  static appendTextInCurrentEditor(s: string) {
+  static async appendTextInCurrentEditor(s: string, prependNewline: boolean) {
+    console.log(s);
     const editor = vscode.window.activeTextEditor;
     if (editor) {
       const lastLine = editor.document.lineCount - 1;
@@ -33,10 +34,10 @@ export default class Codai {
         lastLine,
         lastLineRange.end.character
       );
-      if (lastLineRange.end.character) {
+      if (prependNewline && lastLineRange.end.character) {
         s = '\n' + s;
       }
-      editor.edit((editBuilder) => {
+      await editor.edit((editBuilder) => {
         editBuilder.insert(endPosition, s);
       });
     } else {

@@ -7,25 +7,36 @@ export function activate(context: vscode.ExtensionContext) {
   const model = config.get<string>('model')!; // ! is non-null assertion operator
   console.log(`activated model=${model}`);
 
-  //   let disposable = vscode.commands.registerCommand('codai.helloWorld', () => {
+  //   let disposable0 = vscode.commands.registerCommand('codai.helloWorld', () => {
   //     vscode.window.showInformationMessage('Hello World from codai!');
   //   });
-  //   context.subscriptions.push(disposable);
+  //   context.subscriptions.push(disposable0);
+
   let disposable = vscode.commands.registerCommand(
     'codai.chat_completion',
     () => {
-      //vscode.window.showInformationMessage('codai v27');
       const text = Codai.getTextOfCurrentEditor();
       if (text !== null) {
         Fbutil.chat(text, model).then((response) => {
           if (response !== null) {
-            Codai.appendTextInCurrentEditor(response);
+            Codai.appendTextInCurrentEditor(response, true);
           }
         });
       }
     }
   );
   context.subscriptions.push(disposable);
+
+  let disposable1 = vscode.commands.registerCommand(
+    'codai.chat_completion_stream',
+    () => {
+      const text = Codai.getTextOfCurrentEditor();
+      if (text !== null) {
+        Fbutil.chatAsync(text, model, Codai.appendTextInCurrentEditor);
+      }
+    }
+  );
+  context.subscriptions.push(disposable1);
 }
 
 export function deactivate() {}
