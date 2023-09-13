@@ -9,16 +9,16 @@ describe('Fbutil', () => {
   });
 
   it('parse', ()=>{
-    const dialog = `SYSTEM: Lorem Ipsum bla
-USER: Hello Hello,
+    const dialog = `system: Lorem: Ipsum bla
+user: Hello Hello,
 I am here.
-ASSISTANT:  How are you?
-USER: I am`;
+assistant:  How are you?
+user: I am`;
     assert.deepEqual(Fbutil.parse(dialog),[
-        { role: 'SYSTEM', content: 'Lorem Ipsum bla' },
-        { role: 'USER', content: 'Hello Hello,\nI am here.' },
-        { role: 'ASSISTANT', content: 'How are you?' },
-        { role: 'USER', content: 'I am' }
+        { role: 'system', content: 'Lorem: Ipsum bla' },
+        { role: 'user', content: 'Hello Hello,\nI am here.' },
+        { role: 'assistant', content: 'How are you?' },
+        { role: 'user', content: 'I am' }
     ]);
   });
 });

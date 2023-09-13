@@ -16,18 +16,26 @@ export default class Codeai{
         vscode.window.showErrorMessage('No active text editor found.');
         return null;
       }
-    }
+    };
     static insertTextInCurrentEditor(textToInsert:string) {
-        // Get the active text editor
         const editor = vscode.window.activeTextEditor;
-
         if (editor) {
-          // Insert the text at the current cursor position
           editor.edit((editBuilder) => {
             editBuilder.insert(editor.selection.active, textToInsert);
           });
         } else {
-          // No active editor found
+          vscode.window.showErrorMessage('No active text editor found.');
+        }
+      };
+    static appendTextInCurrentEditor(textToInsert:string) {
+        const editor = vscode.window.activeTextEditor;
+        if (editor) {
+          editor.edit((editBuilder) => {
+            let end = editor.document.lineAt(editor.document.lineCount - 1).range.end;
+            let range = new vscode.Range(end, end);
+            editBuilder.insert(range.end, textToInsert);
+          });
+        } else {
           vscode.window.showErrorMessage('No active text editor found.');
         }
       }

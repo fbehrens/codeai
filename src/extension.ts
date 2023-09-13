@@ -11,12 +11,12 @@ export function activate(context: vscode.ExtensionContext) {
 	});
     context.subscriptions.push(disposable);
 	let disposable1 = vscode.commands.registerCommand('codeai.submit', () => {
-        vscode.window.showInformationMessage('i insert uppercase!');
+        vscode.window.showInformationMessage('codeai v24');
         const text = Codeai.getTextOfCurrentEditor();
         if (text !== null) {
             Fbutil.chat(text).then( response => {
                 if (response !== null){
-                    Codeai.insertTextInCurrentEditor(response);
+                    Codeai.appendTextInCurrentEditor(response);
                 }
             });
         }
