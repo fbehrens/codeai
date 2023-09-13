@@ -3,7 +3,7 @@
   "publisher": "fbehrens",
   "repository": {
     "type": "git",
-    "url": "https://github.com/fbehrens/codeai.git"
+    "url": "https://github.com/fbehrens/codai.git"
   },
   "displayName": "codai",
   "description": "use openai Chat Completion api wht the roles function,sytem,user nad assistant",
