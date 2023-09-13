@@ -1,25 +1,25 @@
 import * as vscode from 'vscode';
-import Codeai from './codeai';
+import Codai from './codai';
 import Fbutil from './lib/fbutil';
 
 export function activate(context: vscode.ExtensionContext) {
-  const config = vscode.workspace.getConfiguration('codeai');
+  const config = vscode.workspace.getConfiguration('codai');
   const model = config.get<string>('model')!; // ! is non-null assertion operator
   console.log(`activated model=${model}`);
 
-  //   let disposable = vscode.commands.registerCommand('codeai.helloWorld', () => {
-  //     vscode.window.showInformationMessage('Hello World from codeai!');
+  //   let disposable = vscode.commands.registerCommand('codai.helloWorld', () => {
+  //     vscode.window.showInformationMessage('Hello World from codai!');
   //   });
   //   context.subscriptions.push(disposable);
   let disposable = vscode.commands.registerCommand(
-    'codeai.chat_completion',
+    'codai.chat_completion',
     () => {
-      //vscode.window.showInformationMessage('codeai v27');
-      const text = Codeai.getTextOfCurrentEditor();
+      //vscode.window.showInformationMessage('codai v27');
+      const text = Codai.getTextOfCurrentEditor();
       if (text !== null) {
         Fbutil.chat(text, model).then((response) => {
           if (response !== null) {
-            Codeai.appendTextInCurrentEditor(response);
+            Codai.appendTextInCurrentEditor(response);
           }
         });
       }

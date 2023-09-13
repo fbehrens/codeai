@@ -1,11 +1,11 @@
 {
-  "name": "codeai",
+  "name": "codai",
   "publisher": "fbehrens",
   "repository": {
     "type": "git",
     "url": "https://github.com/fbehrens/codeai.git"
   },
-  "displayName": "codeai",
+  "displayName": "codai",
   "description": "use openai Chat Completion api wht the roles function,sytem,user nad assistant",
   "version": "0.0.1",
   "prettier": {
@@ -24,9 +24,9 @@
   "main": "./out/extension.js",
   "contributes": {
     "configuration": {
-      "title": "Codeai",
+      "title": "Codai",
       "properties": {
-        "codeai.model": {
+        "codai.model": {
           "type": "string",
           "default": "gpt-3.5-turbo",
           "enum": [
@@ -40,8 +40,8 @@
     },
     "commands": [
       {
-        "command": "codeai.chat_completion",
-        "title": "Codeai: Chat Completion"
+        "command": "codai.chat_completion",
+        "title": "Codai: Chat Completion"
       }
     ]
   },

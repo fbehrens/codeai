@@ -1,7 +1,7 @@
 // const vscode = require('vscode');
 import * as vscode from 'vscode';
 
-export default class Codeai {
+export default class Codai {
   static getTextOfCurrentEditor() {
     // Get the active text editor
     const editor = vscode.window.activeTextEditor;

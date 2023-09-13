@@ -1,4 +1,4 @@
-# codeai
+# Codai
 
 This is a simple extension to use the openai chat completion api similar it can be used in the playground
 
@@ -13,7 +13,7 @@ user:How are you today ?
 
 Allowed roles are `function`,`system`,`user`and `assistant`.
 
-when you submit the command `Codeai: Chat Completion` the extension will use the openai chat completions model to respond.
+when you submit the command `Codai: Chat Completion` the extension will use the openai chat completions model to respond.
 
 The response will be added at the end of the file. In this case the response might be
 
@@ -29,7 +29,7 @@ export OPENAI_API_KEY=sk.....
 
 ## Extension Settings
 
-* `codeai.model`: openai-model
+* `codai.model`: openai-model
 
 ## Known Issues
 
