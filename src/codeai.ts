@@ -33,6 +33,9 @@ export default class Codeai {
         lastLine,
         lastLineRange.end.character
       );
+      if (lastLineRange.end.character) {
+        s = '\n' + s;
+      }
       editor.edit((editBuilder) => {
         editBuilder.insert(endPosition, s);
       });
