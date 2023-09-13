@@ -11,12 +11,11 @@ export default class Fbutil {
   static inc(n: number) {
     return n + 1;
   }
-  static async chat(content: string): Promise<string | null> {
+  static async chat(content: string, model: string): Promise<string | null> {
     const messages = Fbutil.parse(content);
-    console.log(messages);
     const params: OpenAI.Chat.ChatCompletionCreateParams = {
       messages: messages,
-      model: 'gpt-3.5-turbo',
+      model,
     };
     console.log(params);
     const completion: OpenAI.Chat.ChatCompletion =
