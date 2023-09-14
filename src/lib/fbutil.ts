@@ -11,30 +11,17 @@ export default class Fbutil {
   static inc(n: number) {
     return n + 1;
   }
-  static async chat(content: string, model: string): Promise<string | null> {
-    const messages = Fbutil.parse(content);
-    const params: OpenAI.Chat.ChatCompletionCreateParams = {
-      messages,
-      model,
-    };
-    console.log(params);
-    const completion: OpenAI.Chat.ChatCompletion =
-      await openai.chat.completions.create(params);
-    const m = completion.choices[0].message;
-    return `${m.role}: ${m.content}`;
-  }
-  static async chatAsync(
+  static async chat(
     content: string,
     model: string,
     out: (param: string, arg1: boolean) => void
   ) {
     const messages = Fbutil.parse(content);
-    const params: OpenAI.Chat.ChatCompletionCreateParams = {
+    const stream = await openai.chat.completions.create({
       messages,
       model,
       stream: true,
-    };
-    const stream = await openai.chat.completions.create(params);
+    });
     let first = true;
     for await (const part of stream) {
       let d;

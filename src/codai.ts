@@ -3,7 +3,6 @@ import * as vscode from 'vscode';
 
 export default class Codai {
   static getTextOfCurrentEditor() {
-    // Get the active text editor
     const editor = vscode.window.activeTextEditor;
 
     if (editor) {
@@ -14,18 +13,8 @@ export default class Codai {
       return null;
     }
   }
-  static insertTextInCurrentEditor(s: string) {
-    const editor = vscode.window.activeTextEditor;
-    if (editor) {
-      editor.edit((editBuilder) => {
-        editBuilder.insert(editor.selection.active, s);
-      });
-    } else {
-      vscode.window.showErrorMessage('No active text editor found.');
-    }
-  }
+
   static async appendTextInCurrentEditor(s: string, prependNewline: boolean) {
-    console.log(s);
     const editor = vscode.window.activeTextEditor;
     if (editor) {
       const lastLine = editor.document.lineCount - 1;

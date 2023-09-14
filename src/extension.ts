@@ -12,27 +12,12 @@ export function activate(context: vscode.ExtensionContext) {
   //   });
   //   context.subscriptions.push(disposable0);
 
-  let disposable = vscode.commands.registerCommand(
+  let disposable1 = vscode.commands.registerCommand(
     'codai.chat_completion',
     () => {
       const text = Codai.getTextOfCurrentEditor();
       if (text !== null) {
-        Fbutil.chat(text, model).then((response) => {
-          if (response !== null) {
-            Codai.appendTextInCurrentEditor(response, true);
-          }
-        });
-      }
-    }
-  );
-  context.subscriptions.push(disposable);
-
-  let disposable1 = vscode.commands.registerCommand(
-    'codai.chat_completion_stream',
-    () => {
-      const text = Codai.getTextOfCurrentEditor();
-      if (text !== null) {
-        Fbutil.chatAsync(text, model, Codai.appendTextInCurrentEditor);
+        Fbutil.chat(text, model, Codai.appendTextInCurrentEditor);
       }
     }
   );
