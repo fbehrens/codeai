@@ -2,32 +2,25 @@
 import * as vscode from 'vscode';
 
 export default class Codai {
-  static getTextOfCurrentEditor() {
-    const editor = vscode.window.activeTextEditor;
-
-    if (editor) {
-      const text = editor.document.getText();
-      return text;
+  static getQuestion() {
+    const e = vscode.window.activeTextEditor!;
+    const d = e.document!;
+    const s = e.selection;
+    if (s.isEmpty) {
+      const pos = s.active;
+      const textBeforeCursor = new vscode.Range(0, 0, pos.line, pos.character);
+      return d.getText(textBeforeCursor);
     } else {
-      vscode.window.showErrorMessage('No active text editor found.');
-      return null;
+      return d.getText(s);
     }
   }
 
-  static async appendTextInCurrentEditor(s: string, prependNewline: boolean) {
+  static async pasteStreamingResponse(s: string, prependNewline: boolean) {
     const editor = vscode.window.activeTextEditor;
     if (editor) {
-      const lastLine = editor.document.lineCount - 1;
-      const lastLineRange = editor.document.lineAt(lastLine).range;
-      const endPosition = new vscode.Position(
-        lastLine,
-        lastLineRange.end.character
-      );
-      if (prependNewline && lastLineRange.end.character) {
-        s = '\n' + s;
-      }
       await editor.edit((editBuilder) => {
-        editBuilder.insert(endPosition, s);
+        const position = editor.selection.end;
+        editBuilder.insert(position, s);
       });
     } else {
       vscode.window.showErrorMessage('No active text editor found.');

@@ -15,7 +15,9 @@ Allowed roles are `function`,`system`,`user`and `assistant`.
 
 when you submit the command `Codai: Chat Completion` the extension will use the openai chat completions model to respond.
 
-The response will be added at the end of the file. In this case the response might be
+The question will be either the selected text, or text before cursor.
+
+The response will be added after the selection or at the cursor.
 
 ```
 assistant: Ahoy matey! A fine day it is, with the sun shining as bright as a newly minted doubloon! How may I assist ye on this glorious day?

@@ -15,9 +15,9 @@ export function activate(context: vscode.ExtensionContext) {
   let disposable1 = vscode.commands.registerCommand(
     'codai.chat_completion',
     () => {
-      const text = Codai.getTextOfCurrentEditor();
+      const text = Codai.getQuestion();
       if (text !== null) {
-        Fbutil.chat(text, model, Codai.appendTextInCurrentEditor);
+        Fbutil.chat(text, model, Codai.pasteStreamingResponse);
       }
     }
   );
