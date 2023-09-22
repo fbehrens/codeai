@@ -17,6 +17,7 @@ export default class Fbutil {
     out: (param: string, arg1: boolean) => void
   ) {
     const messages = Fbutil.parse(content);
+    console.log(`openai completion with model=${model}`);
     const stream = await openai.chat.completions.create({
       messages,
       model,

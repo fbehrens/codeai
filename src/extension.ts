@@ -4,9 +4,6 @@ import Fbutil from './lib/fbutil';
 
 export function activate(context: vscode.ExtensionContext) {
   const config = vscode.workspace.getConfiguration('codai');
-  const model = config.get<string>('model')!; // ! is non-null assertion operator
-  console.log(`activated model=${model}`);
-
   //   let disposable0 = vscode.commands.registerCommand('codai.helloWorld', () => {
   //     vscode.window.showInformationMessage('Hello World from codai!');
   //   });
@@ -15,6 +12,7 @@ export function activate(context: vscode.ExtensionContext) {
   let disposable1 = vscode.commands.registerCommand(
     'codai.chat_completion',
     () => {
+      const model = config.get<string>('model')!; // ! is non-null assertion operator
       const text = Codai.getQuestion();
       if (text !== null) {
         Fbutil.chat(text, model, Codai.pasteStreamingResponse);
