@@ -1,6 +1,8 @@
 import OpenAI from 'openai';
 import { ChatCompletionMessageParam } from 'openai/resources';
-import * as fs from 'fs';
+import * as fs from 'fs/promises';
+import * as path from 'path';
+
 const openai = new OpenAI({
   // apiKey: 'my api key', // defaults to process.env["OPENAI_API_KEY"]
 });
@@ -36,7 +38,6 @@ export default class Fbutil {
   }
   static async parse(dialog: string, detail:string, dir:string): Promise<ChatCompletionMessageParam[]> {
     async function encodeFileToBase64(filename:string) {
-        const fs = require('fs/promises');
         const data = await fs.readFile(filename);
         return data.toString('base64');
     }
@@ -45,7 +46,8 @@ export default class Fbutil {
         if (url.startsWith('http')){
             return url;
         }
-        const r = await encodeFileToBase64(`${dir}/${url}`);
+        const filename = path.resolve(dir,url);
+        const r = await encodeFileToBase64(filename);
             return `data:image/jpeg;base64,${r}`;
     }
 
