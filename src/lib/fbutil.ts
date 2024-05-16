@@ -11,9 +11,10 @@ export default class Fbutil {
   static async chat(
     content: string,
     model: string,
+    detail: string,
     out: (param: string, arg1: boolean) => void
   ) {
-    const messages = Fbutil.parse(content);
+    const messages = Fbutil.parse(content,detail);
     console.log(`openai completion with model=${model}`);
     const stream = await openai.chat.completions.create({
       messages,
@@ -33,7 +34,7 @@ export default class Fbutil {
       }
     }
   }
-  static parse(dialog: string): ChatCompletionMessageParam[] {
+  static parse(dialog: string, detail:string): ChatCompletionMessageParam[] {
     function encodeImage(role: Role,content:string):ChatCompletionMessageParam{
         const regexp = /\!\[[^\]]*\]\((.*?)\)/g;
         const images = [...content.matchAll(regexp)].map(match => {
@@ -42,7 +43,7 @@ export default class Fbutil {
                 // eslint-disable-next-line @typescript-eslint/naming-convention
                 image_url: {
                     url: match[1],
-                    detail: 'low'}};} );
+                    detail: detail}};} );
         if (images.length) {
             content = content.replaceAll(regexp,'');
             return {

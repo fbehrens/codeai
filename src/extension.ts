@@ -13,9 +13,10 @@ export function activate(context: vscode.ExtensionContext) {
     'codai.chat_completion',
     () => {
       const model = config.get<string>('model')!; // ! is non-null assertion operator
+      const detail = config.get<string>('detail')!;
       const text = Codai.getQuestion();
       if (text !== null) {
-        Fbutil.chat(text, model, Codai.pasteStreamingResponse);
+        Fbutil.chat(text, model, detail, Codai.pasteStreamingResponse);
       }
     }
   );

@@ -37,6 +37,15 @@
             "gpt-4o"
           ],
           "description": "openai model"
+        },
+        "codai.detail": {
+          "type": "string",
+          "default": "low",
+          "enum": [
+            "low",
+            "high"
+          ],
+          "description": "openai image resolution"
         }
       }
     },
