@@ -1,20 +1,20 @@
 import OpenAI from 'openai';
 import { ChatCompletionMessageParam } from 'openai/resources';
+import * as fs from 'fs';
 const openai = new OpenAI({
   // apiKey: 'my api key', // defaults to process.env["OPENAI_API_KEY"]
 });
 type Role = 'function' | 'system' | 'user' | 'assistant';
 export default class Fbutil {
-  static inc(n: number) {
-    return n + 1;
-  }
   static async chat(
     content: string,
     model: string,
     detail: string,
+    dir:string,
     out: (param: string, arg1: boolean) => void
   ) {
-    const messages = Fbutil.parse(content,detail);
+    console.log({dir});
+    const messages = await Fbutil.parse(content,detail,dir);
     console.log(`openai completion with model=${model}`);
     const stream = await openai.chat.completions.create({
       messages,
@@ -34,16 +34,35 @@ export default class Fbutil {
       }
     }
   }
-  static parse(dialog: string, detail:string): ChatCompletionMessageParam[] {
-    function encodeImage(role: Role,content:string):ChatCompletionMessageParam{
+  static async parse(dialog: string, detail:string, dir:string): Promise<ChatCompletionMessageParam[]> {
+    async function encodeFileToBase64(filename:string) {
+        const fs = require('fs/promises');
+        const data = await fs.readFile(filename);
+        return data.toString('base64');
+    }
+
+    async function resolveUrl(url:string):Promise<string>{
+        if (url.startsWith('http')){
+            return url;
+        }
+        const r = await encodeFileToBase64(`${dir}/${url}`);
+            return `data:image/jpeg;base64,${r}`;
+    }
+
+    const imageTag = async (match:string) => {
+        const url = await resolveUrl(match);
+        return {
+            type: 'image_url',
+            // eslint-disable-next-line @typescript-eslint/naming-convention
+            image_url: {
+                url,
+                detail: detail}};
+    };
+
+    async function encodeImage(role: Role,content:string,dir:string):Promise<ChatCompletionMessageParam>{
         const regexp = /\!\[[^\]]*\]\((.*?)\)/g;
-        const images = [...content.matchAll(regexp)].map(match => {
-            return {
-                type: 'image_url',
-                // eslint-disable-next-line @typescript-eslint/naming-convention
-                image_url: {
-                    url: match[1],
-                    detail: detail}};} );
+        const imagesStr = [...content.matchAll(regexp)].map(match => match[1]);
+        const images = await Promise.all(imagesStr.map(imageTag));
         if (images.length) {
             content = content.replaceAll(regexp,'');
             return {
@@ -65,7 +84,8 @@ export default class Fbutil {
       const r = paragraph.slice(0, colon);
       const content = paragraph.slice(colon + 1).trim();
       const role = r as Role;
-      result.push( encodeImage(role,content) );
+      const mes = await encodeImage(role,content,dir) ;
+      result.push( mes);
     }
     // console.log(result);
     return result;

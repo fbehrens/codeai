@@ -1,3 +1,7 @@
 require: 'ts-node/esm'
 spec:
   - 'src/libtest/*.test.ts' # the positional arguments!
+watch: true
+watch-files:
+  - 'src/lib/*.ts'
+  - 'src/libtest/*.ts'
