@@ -1,0 +1,3 @@
+require: 'ts-node/esm'
+spec:
+  - 'src/libtest/*.test.ts' # the positional arguments!

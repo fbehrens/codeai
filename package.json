@@ -50,7 +50,7 @@
     "vscode:prepublish": "npm run compile",
     "compile": "tsc -p ./",
     "watch": "tsc -watch -p ./",
-    "test": "mocha -r ts-node/esm src/libtest/*.test.ts --watch --watch-files src/lib/*.ts,src/libtest/*.ts",
+    "test": "mocha --watch --watch-files src/lib/*.ts,src/libtest/*.ts",
     "pretest": "npm run compile && npm run lint",
     "lint": "eslint src --ext ts",
     "format": "prettier --write \"src/**/*.ts\"",
