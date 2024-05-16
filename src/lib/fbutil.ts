@@ -34,15 +34,39 @@ export default class Fbutil {
     }
   }
   static parse(dialog: string): ChatCompletionMessageParam[] {
+    function encodeImage(role: Role,content:string):ChatCompletionMessageParam{
+        const regexp = /\!\[[^\]]*\]\((.*?)\)/g;
+        const images = [...content.matchAll(regexp)].map(match => {
+            return {
+                type: 'image_url',
+                // eslint-disable-next-line @typescript-eslint/naming-convention
+                image_url: {
+                    url: match[1],
+                    detail: 'low'}};} );
+        if (images.length) {
+            content = content.replaceAll(regexp,'');
+            return {
+                role,
+                content: [ {
+                    type: "text",
+                    text: content }, ...images ]
+            } as ChatCompletionMessageParam;
+        }
+        return {
+            role,
+            content
+            } as ChatCompletionMessageParam;
+    };
     const result: ChatCompletionMessageParam[] = [];
-    const paragraphs = dialog.split(/\n(?=function:|user:|system:|assistant:)/);
+    const paragraphs = dialog.split(/\n(?=function:|user:|system:|assistant:|image:)/);
     for (const paragraph of paragraphs) {
       const colon = paragraph.indexOf(':');
       const r = paragraph.slice(0, colon);
       const content = paragraph.slice(colon + 1).trim();
       const role = r as Role;
-      result.push({ role, content} as ChatCompletionMessageParam);
+      result.push( encodeImage(role,content) );
     }
+    // console.log(result);
     return result;
   }
 }

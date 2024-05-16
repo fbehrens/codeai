@@ -20,4 +20,21 @@ user: I am`;
       { role: 'user', content: 'I am' },
     ]);
   });
+  it('image', () => {
+    const dialog = `system: Lorem: Ipsum bla
+user: Hello Hello![](image)`;
+    assert.deepEqual(Fbutil.parse(dialog), [
+        { role: 'system', content: 'Lorem: Ipsum bla' },
+        { role: 'user', content: [
+            {   type: 'text',
+                text: 'Hello Hello'},
+            {   type: 'image_url',
+                // eslint-disable-next-line @typescript-eslint/naming-convention
+                image_url: {
+                    url: 'image',
+                    detail: 'high'}}
+        ]
+        },
+    ]);
+  });
 });
