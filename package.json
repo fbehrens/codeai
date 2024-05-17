@@ -7,7 +7,7 @@
   },
   "displayName": "codai",
   "description": "use openai Chat Completion api wht the roles function,sytem,user nad assistant",
-  "version": "0.5.1",
+  "version": "0.5.2",
   "prettier": {
     "tabWidth": 2,
     "printWidth": 80,
