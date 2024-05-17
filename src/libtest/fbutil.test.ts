@@ -7,14 +7,14 @@ const dir = '/Users/fb/Documents/Github/codeai/examples';
 describe('Fbutil', () => {
   it('parse', async function() {
     const dialog = `system: Lorem: Ipsum bla
-user: Hello Hello,
+User: Hello Hello,
 I am here.
 assistant:  How are you?
 user: I am`;
     const result = await Fbutil.parse(dialog,detail,dir);
     assert.deepEqual(result, [
       { role: 'system', content: 'Lorem: Ipsum bla' },
-      { role: 'user', content: 'Hello Hello,\nI am here.' },
+      { role: 'User', content: 'Hello Hello,\nI am here.' },
       { role: 'assistant', content: 'How are you?' },
       { role: 'user', content: 'I am' },
     ]);

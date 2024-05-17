@@ -11,6 +11,8 @@ npm mocha -g filter
 ```bash
 npm upgrade -g @vscode/vsce
 vsce -V #  2.26.1
-vsce package
-vsce publish minor
+
+# vsce package
+
+vsce publish minor # or patch
 ```

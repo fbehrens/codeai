@@ -80,7 +80,7 @@ export default class Fbutil {
             } as ChatCompletionMessageParam;
     };
     const result: ChatCompletionMessageParam[] = [];
-    const paragraphs = dialog.split(/\n(?=function:|user:|system:|assistant:|image:)/);
+    const paragraphs = dialog.split(/\n(?=function:|user:|system:|assistant:|image:)/i);
     for (const paragraph of paragraphs) {
       const colon = paragraph.indexOf(':');
       const r = paragraph.slice(0, colon);

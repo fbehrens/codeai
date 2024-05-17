@@ -57,11 +57,11 @@
     ]
   },
   "scripts": {
-    "vscode:prepublish": "npm run esbuild-base -- --minify",
+    "vscode:prepublish": "rm -rf out && npm run esbuild-base -- --minify",
     "esbuild-base": "esbuild ./src/extension.ts --bundle --outfile=out/extension.js --external:vscode --format=cjs --platform=node",
     "compile": "tsc -p ./",
     "watch": "tsc -watch -p ./",
-    "test": "mocha",
+    "test": "mocha --watch --watch-files src/lib/*.ts,src/libtest/*.ts",
     "pretest": "npm run compile && npm run lint",
     "lint": "eslint src --ext ts",
     "format": "prettier --write \"src/**/*.ts\"",
