@@ -12,7 +12,7 @@ export default class Fbutil {
     content: string,
     model: string,
     detail: string,
-    dir:string,
+    dir: string,
     out: (param: string, arg1: boolean) => void
   ) {
     console.log({dir});
@@ -89,7 +89,9 @@ export default class Fbutil {
       const mes = await encodeImage(role,content,dir) ;
       result.push( mes);
     }
-    // console.log(result);
-    return result;
+
+    let lastSystemIndex = result.findLastIndex((e)=> e.role === 'system');
+    const result1 = result.slice(lastSystemIndex)
+    return result1;
   }
 }

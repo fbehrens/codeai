@@ -6,7 +6,9 @@ const detail = 'low';
 const dir = '/Users/fb/Documents/Github/codeai/examples';
 describe('Fbutil', () => {
   it('parse', async function() {
-    const dialog = `system: Lorem: Ipsum bla
+    const dialog = `system: ignore this prompt1
+user: ignore this
+system: Lorem: Ipsum bla
 User: Hello Hello,
 I am here.
 assistant:  How are you?
