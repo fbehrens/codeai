@@ -32,8 +32,6 @@ export OPENAI_API_KEY=sk.....
 ## Extension Settings
 
 * `codai.model`: openai-model
+* `codai.detail`: image resolution
 
-## Known Issues
-
-Calling out known issues can help limit users opening duplicate issues against your extension.
 
