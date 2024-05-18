@@ -79,8 +79,10 @@ export default class Fbutil {
             content
             } as ChatCompletionMessageParam;
     };
+    const roles = 'function:|user:|system:|assistant:';
+    const dialog1 = dialog.replace(new RegExp(`\n(#+ )?(?<role>${roles})`,'g'), '\n$<role>'); // ## user: -> user:
+    const paragraphs = dialog1.split(new RegExp(`\n(?=${roles})`));
     const result: ChatCompletionMessageParam[] = [];
-    const paragraphs = dialog.split(/\n(?=function:|user:|system:|assistant:|image:)/i);
     for (const paragraph of paragraphs) {
       const colon = paragraph.indexOf(':');
       const r = paragraph.slice(0, colon);
@@ -91,7 +93,7 @@ export default class Fbutil {
     }
 
     let lastSystemIndex = result.findLastIndex((e)=> e.role === 'system');
-    const result1 = result.slice(lastSystemIndex)
+    const result1 = result.slice(lastSystemIndex);
     return result1;
   }
 }

@@ -6,17 +6,19 @@ const detail = 'low';
 const dir = '/Users/fb/Documents/Github/codeai/examples';
 describe('Fbutil', () => {
   it('parse', async function() {
-    const dialog = `system: ignore this prompt1
-user: ignore this
-system: Lorem: Ipsum bla
-User: Hello Hello,
+    const dialog = `## ignore
+this
+# system: ignore this sytem message
+# system: Lorem: Ipsum bla
+## user: Hello Hello,
 I am here.
 assistant:  How are you?
 user: I am`;
     const result = await Fbutil.parse(dialog,detail,dir);
+    assert.strictEqual('abcd'.replace(/b(?<letter>.)/,'_$<letter>'),'a_cd');
     assert.deepEqual(result, [
       { role: 'system', content: 'Lorem: Ipsum bla' },
-      { role: 'User', content: 'Hello Hello,\nI am here.' },
+      { role: 'user', content: 'Hello Hello,\nI am here.' },
       { role: 'assistant', content: 'How are you?' },
       { role: 'user', content: 'I am' },
     ]);
@@ -45,3 +47,4 @@ user: I am`;
         });
     });
 });
+console.log(new Date().toLocaleTimeString());
