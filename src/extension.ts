@@ -13,29 +13,54 @@ export function activate(context: vscode.ExtensionContext) {
   statusBar.show();
   context.subscriptions.push(statusBar);
 
-  function chatCompletion(onePromt:boolean){
+  const stopGeneratingButton = vscode.window.createStatusBarItem(
+    vscode.StatusBarAlignment.Left
+  );
+  stopGeneratingButton.text = 'Stop Generating';
+  stopGeneratingButton.command = 'codai.stopGenerating';
+  stopGeneratingButton.show();
+  context.subscriptions.push(stopGeneratingButton);
+
+  let tokenSource: vscode.CancellationTokenSource | undefined;
+  vscode.commands.registerCommand('codai.stopGenerating', () => {
+    tokenSource?.cancel();
+  });
+
+  async function chatCompletion(onePromt: boolean) {
+    stopGeneratingButton.show();
     const model = config.get<string>('model')!; // ! is non-null assertion operator
     const detail = config.get<string>('detail')!;
     const dir = path.dirname(
       vscode.window.activeTextEditor?.document.uri.path!
     );
+    tokenSource = new vscode.CancellationTokenSource();
     const text = Codai.getQuestion();
     if (text !== null) {
-      Fbutil.chat(text, model, detail, dir, onePromt,Codai.pasteStreamingResponse);
+      await Codai.chat(
+        text,
+        model,
+        detail,
+        dir,
+        onePromt,
+        tokenSource.token,
+        Codai.pasteStreamingResponse
+      );
     }
-  };
+    stopGeneratingButton.hide();
+  }
 
-  let disposable = vscode.commands.registerCommand(
+  const disposable1 = vscode.commands.registerCommand(
     'codai.chat_completion',
-    () => {
-        chatCompletion(false);
+    async () => {
+      await chatCompletion(false);
     }
   );
-  context.subscriptions.push(disposable);
-  disposable = vscode.commands.registerCommand(
+  context.subscriptions.push(disposable1);
+
+  const disposable = vscode.commands.registerCommand(
     'codai.chat_completion_one',
     () => {
-        chatCompletion(true);
+      chatCompletion(true);
     }
   );
   context.subscriptions.push(disposable);
