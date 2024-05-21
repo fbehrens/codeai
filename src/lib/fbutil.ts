@@ -6,8 +6,9 @@ import * as path from 'path';
 const openai = new OpenAI({
   // apiKey: 'my api key', // defaults to process.env["OPENAI_API_KEY"]
 });
-type Role = 'function' | 'system' | 'user' | 'assistant';
+type Role = 'function' | 'system' | 'user' | 'assistant' | 'dalle';
 export default class Fbutil {
+  static dalle: Role = 'dalle';
   static sleep(ms: number): Promise<void> {
     return new Promise((resolve) => setTimeout(resolve, ms));
   }
@@ -70,7 +71,7 @@ export default class Fbutil {
         content,
       } as ChatCompletionMessageParam;
     }
-    const roles = 'function:|user:|system:|assistant:';
+    const roles = 'function:|user:|system:|assistant:|dalle:';
     const dialog1 = dialog.replace(
       new RegExp(`\n(#+ )?(?<role>${roles})`, 'g'),
       '\n$<role>'
@@ -90,6 +91,14 @@ export default class Fbutil {
     result = result.slice(lastSystemIndex);
     if (onlylastPromt) {
       result = [result[0], result[result.length - 1]];
+    }
+    const last = result[result.length - 1];
+    if (last.role === this.dalle) {
+      result = [last];
+    } else {
+      result = result.filter((e) => {
+        return e.role !== this.dalle;
+      });
     }
     return result;
   }

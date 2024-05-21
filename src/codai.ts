@@ -2,9 +2,20 @@
 import * as vscode from 'vscode';
 import Fbutil from './lib/fbutil';
 import OpenAI from 'openai';
+import { measureMemory } from 'vm';
 const openai = new OpenAI({});
 
 export default class Codai {
+  static async getImage(description: string): Promise<string> {
+    const response = await openai.images.generate({
+      model: 'dall-e-3',
+      prompt: description,
+      n: 1,
+      size: '1024x1024',
+    });
+    console.log(response);
+    return response.data[0].url as string;
+  }
   static getQuestion() {
     const e = vscode.window.activeTextEditor!;
     const d = e.document!;
@@ -37,24 +48,33 @@ export default class Codai {
   ) {
     console.log({ dir });
     const messages = await Fbutil.parse(content, detail, dir, onlylastPromt);
-    console.log(`openai completion with model=${model}`);
-    const stream = await openai.chat.completions.create({
-      messages,
-      model,
-      stream: true,
-    });
-    let first = true;
-    for await (const part of stream) {
-      let d;
-      if (token.isCancellationRequested) {
-        return;
-      }
-      if ((d = part.choices[0]?.delta)) {
-        if (first) {
-          first = false;
-          await out(`${d.role}:\n${d.content}`);
-        } else {
-          await out(d.content!);
+    if (vscode.debug.activeDebugConsole) {
+      console.log(messages);
+    }
+    if (messages[0].role === Fbutil.dalle) {
+      const url: string = await this.getImage(messages[0].content as string);
+      console.log(url);
+      await out(`![](${url})`);
+    } else {
+      console.log(`openai completion with model=${model}`);
+      const stream = await openai.chat.completions.create({
+        messages,
+        model,
+        stream: true,
+      });
+      let first = true;
+      for await (const part of stream) {
+        let d;
+        if (token.isCancellationRequested) {
+          return;
+        }
+        if ((d = part.choices[0]?.delta)) {
+          if (first) {
+            first = false;
+            await out(`${d.role}:\n${d.content}`);
+          } else {
+            await out(d.content!);
+          }
         }
       }
     }

@@ -5,27 +5,46 @@ import Fbutil from '../lib/fbutil';
 const detail = 'low';
 const dir = '/Users/fb/Documents/Github/codeai/examples';
 describe('Fbutil', () => {
-  it('parse', async function () {
+  describe('parse', async function () {
     const dialog = `## ignore
 this
 # system: ignore this sytem message
 # system: Lorem: Ipsum bla
 ## user: Hello Hello,
 I am here.
+dalle: Picture of a cow
 assistant:  How are you?
 user: I am`;
-    const result = await Fbutil.parse(dialog, detail, dir, false);
-    assert.deepEqual(result, [
-      { role: 'system', content: 'Lorem: Ipsum bla' },
-      { role: 'user', content: 'Hello Hello,\nI am here.' },
-      { role: 'assistant', content: 'How are you?' },
-      { role: 'user', content: 'I am' },
-    ]);
-    const resultOnly = await Fbutil.parse(dialog, detail, dir, true);
-    assert.deepEqual(resultOnly, [
-      { role: 'system', content: 'Lorem: Ipsum bla' },
-      { role: 'user', content: 'I am' },
-    ]);
+    it('default', async function () {
+      const result = await Fbutil.parse(dialog, detail, dir, false);
+      assert.deepEqual(result, [
+        { role: 'system', content: 'Lorem: Ipsum bla' },
+        { role: 'user', content: 'Hello Hello,\nI am here.' },
+        { role: 'assistant', content: 'How are you?' },
+        { role: 'user', content: 'I am' },
+      ]);
+    });
+    it('onePrompt', async function () {
+      const resultOnly = await Fbutil.parse(dialog, detail, dir, true);
+      assert.deepEqual(resultOnly, [
+        { role: 'system', content: 'Lorem: Ipsum bla' },
+        { role: 'user', content: 'I am' },
+      ]);
+    });
+    it('dalle', async function () {
+      const resultOnly = await Fbutil.parse(
+        `# system: Lorem: Ipsum bla
+## user: Hello Hello,
+I am here.
+dalle: Picture of a cow`,
+        detail,
+        dir,
+        true
+      );
+      assert.deepEqual(resultOnly, [
+        { role: 'dalle', content: 'Picture of a cow' },
+      ]);
+    });
   });
   describe('Image', async function () {
     it('http', async function () {

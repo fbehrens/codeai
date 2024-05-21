@@ -53,6 +53,7 @@ export function activate(context: vscode.ExtensionContext) {
     'codai.chat_completion',
     async () => {
       await chatCompletion(false);
+      //   Codai.getImage();
     }
   );
   context.subscriptions.push(disposable1);
