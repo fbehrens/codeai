@@ -18,16 +18,12 @@ export default class Codai {
     }
   }
 
-  static async pasteStreamingResponse(s: string, prependNewline: boolean) {
-    const editor = vscode.window.activeTextEditor;
-    if (editor) {
-      await editor.edit((editBuilder) => {
-        const position = editor.selection.end;
-        editBuilder.insert(position, s);
-      });
-    } else {
-      vscode.window.showErrorMessage('No active text editor found.');
-    }
+  static async pasteStreamingResponse(s: string) {
+    const editor = vscode.window.activeTextEditor!;
+    await editor.edit((editBuilder) => {
+      const position = editor.selection.end;
+      editBuilder.insert(position, s);
+    });
   }
 
   static async chat(
@@ -37,7 +33,7 @@ export default class Codai {
     dir: string,
     onlylastPromt: boolean,
     token: vscode.CancellationToken,
-    out: (param: string, arg1: boolean) => void
+    out: (param: string) => void
   ) {
     console.log({ dir });
     const messages = await Fbutil.parse(content, detail, dir, onlylastPromt);
@@ -56,9 +52,9 @@ export default class Codai {
       if ((d = part.choices[0]?.delta)) {
         if (first) {
           first = false;
-          await out(d.role + ': ' + d.content, true);
+          await out(`${d.role}:\n${d.content}`);
         } else {
-          await out(d.content || '', false);
+          await out(d.content!);
         }
       }
     }
