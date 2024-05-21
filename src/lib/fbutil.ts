@@ -13,10 +13,11 @@ export default class Fbutil {
     model: string,
     detail: string,
     dir: string,
+    onlylastPromt: boolean,
     out: (param: string, arg1: boolean) => void
   ) {
     console.log({dir});
-    const messages = await Fbutil.parse(content,detail,dir);
+    const messages = await Fbutil.parse(content,detail,dir,onlylastPromt);
     console.log(`openai completion with model=${model}`);
     const stream = await openai.chat.completions.create({
       messages,
@@ -36,7 +37,7 @@ export default class Fbutil {
       }
     }
   }
-  static async parse(dialog: string, detail:string, dir:string): Promise<ChatCompletionMessageParam[]> {
+  static async parse(dialog: string, detail:string, dir:string,onlylastPromt:boolean): Promise<ChatCompletionMessageParam[]> {
     async function encodeFileToBase64(filename:string) {
         const data = await fs.readFile(filename);
         return data.toString('base64');
@@ -82,7 +83,7 @@ export default class Fbutil {
     const roles = 'function:|user:|system:|assistant:';
     const dialog1 = dialog.replace(new RegExp(`\n(#+ )?(?<role>${roles})`,'g'), '\n$<role>'); // ## user: -> user:
     const paragraphs = dialog1.split(new RegExp(`\n(?=${roles})`));
-    const result: ChatCompletionMessageParam[] = [];
+    let result: ChatCompletionMessageParam[] = [];
     for (const paragraph of paragraphs) {
       const colon = paragraph.indexOf(':');
       const r = paragraph.slice(0, colon);
@@ -93,7 +94,10 @@ export default class Fbutil {
     }
 
     let lastSystemIndex = result.findLastIndex((e)=> e.role === 'system');
-    const result1 = result.slice(lastSystemIndex);
-    return result1;
+    result = result.slice(lastSystemIndex);
+    if (onlylastPromt){
+        result = [result[0],result[result.length-1] ];
+    };
+    return result;
   }
 }

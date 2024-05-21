@@ -5,24 +5,38 @@ import * as path from 'path';
 
 export function activate(context: vscode.ExtensionContext) {
   const config = vscode.workspace.getConfiguration('codai');
-  //   let disposable0 = vscode.commands.registerCommand('codai.helloWorld', () => {
-  //     vscode.window.showInformationMessage('Hello World from codai!');
-  //   });
-  //   context.subscriptions.push(disposable0);
+  const statusBar = vscode.window.createStatusBarItem(
+    vscode.StatusBarAlignment.Right,
+    100
+  );
+  statusBar.text = 'Version124';
+  statusBar.show();
+  context.subscriptions.push(statusBar);
 
-  let disposable1 = vscode.commands.registerCommand(
+  function chatCompletion(onePromt:boolean){
+    const model = config.get<string>('model')!; // ! is non-null assertion operator
+    const detail = config.get<string>('detail')!;
+    const dir = path.dirname(
+      vscode.window.activeTextEditor?.document.uri.path!
+    );
+    const text = Codai.getQuestion();
+    if (text !== null) {
+      Fbutil.chat(text, model, detail, dir, onePromt,Codai.pasteStreamingResponse);
+    }
+  };
+
+  let disposable = vscode.commands.registerCommand(
     'codai.chat_completion',
     () => {
-      const model = config.get<string>('model')!; // ! is non-null assertion operator
-      const detail = config.get<string>('detail')!;
-      const dir = path.dirname(vscode.window.activeTextEditor?.document.uri.path!);
-      const text = Codai.getQuestion();
-      if (text !== null) {
-        Fbutil.chat(text, model, detail, dir, Codai.pasteStreamingResponse);
-      }
+        chatCompletion(false);
     }
   );
-  context.subscriptions.push(disposable1);
+  context.subscriptions.push(disposable);
+  disposable = vscode.commands.registerCommand(
+    'codai.chat_completion_one',
+    () => {
+        chatCompletion(true);
+    }
+  );
+  context.subscriptions.push(disposable);
 }
-
-export function deactivate() {}
