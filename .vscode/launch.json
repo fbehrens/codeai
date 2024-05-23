@@ -11,7 +11,8 @@
             "request": "launch",
             "args": [
                 "--extensionDevelopmentPath=${workspaceFolder}",
-                "${workspaceFolder}/examples/hello.md"
+                "${workspaceFolder}/examples/hello.md",
+                "${workspaceFolder}/examples/hello.py"
             ],
             "outFiles": [
                 "${workspaceFolder}/out/**/*.js"

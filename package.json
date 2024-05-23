@@ -26,6 +26,14 @@
     "configuration": {
       "title": "Codai",
       "properties": {
+        "codai.languageSystemPrompts": {
+          "type": "object",
+          "default": {
+            "javascript": "You are a javascript senior developer. The user gives you a function with a name,a signature and an optional docstring and you respond with the function body. Please include explanations only when important. Please respond with just code and put the explanation in comments.",
+            "python": "You are a python senior developer. The user gives you a function with a name,a signature and an optional docstring and you respond with the function body. Please include explanations only when important. Please respond with just and without ``` markdow code markers"
+          },
+          "description": "An example setting of type Object"
+        },
         "codai.model": {
           "type": "string",
           "default": "gpt-4o",
