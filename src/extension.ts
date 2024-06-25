@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 import Codai from './codai';
-import Fbutil from './lib/fbutil';
+import Fbutil, { Detail } from './lib/fbutil';
 import * as path from 'path';
 
 export function activate(context: vscode.ExtensionContext) {
@@ -13,6 +13,7 @@ export function activate(context: vscode.ExtensionContext) {
   statusBar.show();
   context.subscriptions.push(statusBar);
 
+  // Stop Genarating button
   const stopGeneratingButton = vscode.window.createStatusBarItem(
     vscode.StatusBarAlignment.Left
   );
@@ -26,10 +27,23 @@ export function activate(context: vscode.ExtensionContext) {
     tokenSource?.cancel();
   });
 
+  async function dalle() {
+    const editor = vscode.window.activeTextEditor!;
+    const position = editor.selection.active;
+    const line = editor.document.lineAt(position.line);
+    console.log(line.text);
+    const url: string = await Codai.doDalle(line.text);
+    console.log(url);
+    const newPosition = position.with(position.line, Number.MAX_VALUE);
+    editor.edit((editBuilder) => {
+      editBuilder.insert(newPosition, '\n' + `![](${url})`);
+    });
+  }
+
   async function chatCompletion(onePromt: boolean) {
     stopGeneratingButton.show();
     const model = config.get<string>('model')!; // ! is non-null assertion operator
-    const detail = config.get<string>('detail')!;
+    const detail = config.get<Detail>('detail')!;
     const dir = path.dirname(
       vscode.window.activeTextEditor?.document.uri.path!
     );
@@ -53,10 +67,15 @@ export function activate(context: vscode.ExtensionContext) {
     'codai.chat_completion',
     async () => {
       await chatCompletion(false);
-      //   Codai.getImage();
     }
   );
   context.subscriptions.push(disposable1);
+
+  context.subscriptions.push(
+    vscode.commands.registerCommand('codai.dalle', async () => {
+      await dalle();
+    })
+  );
 
   const disposable = vscode.commands.registerCommand(
     'codai.chat_completion_one',

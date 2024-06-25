@@ -6,24 +6,34 @@ import * as path from 'path';
 const openai = new OpenAI({
   // apiKey: 'my api key', // defaults to process.env["OPENAI_API_KEY"]
 });
-type Role = 'function' | 'system' | 'user' | 'assistant' | 'dalle';
+type Role = 'function' | 'system' | 'user' | 'assistant';
+export type Detail = 'low' | 'high';
+
 export default class Fbutil {
-  static dalle: Role = 'dalle';
   static sleep(ms: number): Promise<void> {
     return new Promise((resolve) => setTimeout(resolve, ms));
   }
 
   static async parse(
     dialog: string,
-    detail: string,
+    detail: Detail,
     dir: string,
     onlylastPromt: boolean
   ): Promise<ChatCompletionMessageParam[]> {
+    /**
+     *
+     * @param filename
+     * @returns
+     */
     async function encodeFileToBase64(filename: string) {
       const data = await fs.readFile(filename);
       return data.toString('base64');
     }
 
+    /**
+     * @param url local or http:
+     * @returns http:// or base64 encoded local image
+     */
     async function resolveUrl(url: string): Promise<string> {
       if (url.startsWith('http')) {
         return url;
@@ -45,6 +55,13 @@ export default class Fbutil {
       };
     };
 
+    /**
+     *
+     * @param role
+     * @param content
+     * @param dir
+     * @returns
+     */
     async function encodeImage(
       role: Role,
       content: string,
@@ -86,20 +103,18 @@ export default class Fbutil {
       const mes = await encodeImage(role, content, dir);
       result.push(mes);
     }
-
+    // postprrocessing
+    // start from last system prompt
     let lastSystemIndex = result.findLastIndex((e) => e.role === 'system');
     result = result.slice(lastSystemIndex);
+
+    // onlylastPrompt
     if (onlylastPromt) {
       result = [result[0], result[result.length - 1]];
     }
+
+    // when last is dalle => remove everything
     const last = result[result.length - 1];
-    if (last.role === this.dalle) {
-      result = [last];
-    } else {
-      result = result.filter((e) => {
-        return e.role !== this.dalle;
-      });
-    }
     return result;
   }
 }

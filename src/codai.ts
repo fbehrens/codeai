@@ -1,6 +1,6 @@
 // const vscode = require('vscode');
 import * as vscode from 'vscode';
-import Fbutil from './lib/fbutil';
+import Fbutil, { Detail } from './lib/fbutil';
 import OpenAI from 'openai';
 import { measureMemory } from 'vm';
 const openai = new OpenAI({});
@@ -11,16 +11,25 @@ interface MyObject {
 }
 
 export default class Codai {
-  static async getImage(description: string): Promise<string> {
+  /**
+   *
+   * @param description
+   * @returns
+   */
+  static async doDalle(description: string): Promise<string> {
     const response = await openai.images.generate({
       model: 'dall-e-3',
       prompt: description,
       n: 1,
       size: '1024x1024',
     });
-    console.log(response);
     return response.data[0].url as string;
   }
+
+  /**
+   *
+   * @returns
+   */
   static getQuestion() {
     const e = vscode.window.activeTextEditor!;
     const d = e.document!;
@@ -46,6 +55,10 @@ export default class Codai {
     return '';
   }
 
+  /**
+   *
+   * @param s
+   */
   static async pasteStreamingResponse(s: string) {
     const editor = vscode.window.activeTextEditor!;
     await editor.edit((editBuilder) => {
@@ -53,6 +66,12 @@ export default class Codai {
       editBuilder.insert(position, s);
     });
   }
+
+  /**
+   *
+   * @param messages
+   * @returns
+   */
   static messagesToString(
     messages: OpenAI.Chat.Completions.ChatCompletionMessageParam[]
   ): string {
@@ -62,10 +81,22 @@ export default class Codai {
     }
     return out;
   }
+
+  /**
+   *
+   * @param content
+   * @param model
+   * @param detail
+   * @param dir
+   * @param onlylastPromt
+   * @param token
+   * @param out
+   * @returns
+   */
   static async chat(
     content: string,
     model: string,
-    detail: string,
+    detail: Detail,
     dir: string,
     onlylastPromt: boolean,
     token: vscode.CancellationToken,
@@ -74,31 +105,25 @@ export default class Codai {
     const messages = await Fbutil.parse(content, detail, dir, onlylastPromt);
     outputChannel.appendLine(this.messagesToString(messages) + `->${model}`);
     console.log(messages);
-    if (messages[0].role === Fbutil.dalle) {
-      const url: string = await this.getImage(messages[0].content as string);
-      console.log(url);
-      await out(`![](${url})`);
-    } else {
-      console.log(`openai completion with model=${model}`);
-      const stream = await openai.chat.completions.create({
-        messages,
-        model,
-        stream: true,
-      });
-      const lid: string = vscode.window.activeTextEditor?.document.languageId!;
-      let first = true;
-      for await (const part of stream) {
-        let d;
-        if (token.isCancellationRequested) {
-          return;
-        }
-        if ((d = part.choices[0]?.delta)) {
-          if (first && lid === 'markdown') {
-            first = false;
-            await out(`${d.role}:\n${d.content}`);
-          } else {
-            await out(d.content!);
-          }
+    console.log(`openai completion with model=${model}`);
+    const stream = await openai.chat.completions.create({
+      messages,
+      model,
+      stream: true,
+    });
+    const lid: string = vscode.window.activeTextEditor?.document.languageId!;
+    let first = true;
+    for await (const part of stream) {
+      let d;
+      if (token.isCancellationRequested) {
+        return;
+      }
+      if ((d = part.choices[0]?.delta)) {
+        if (first && lid === 'markdown') {
+          first = false;
+          await out(`${d.role}:\n${d.content}`);
+        } else {
+          await out(d.content!);
         }
       }
     }

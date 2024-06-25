@@ -1,9 +1,10 @@
 import { describe, it, expect } from 'vitest';
 import { ChatCompletionContentPartImage } from 'openai/resources/chat/completions';
-import Fbutil from './fbutil';
+import Fbutil, { Detail } from './fbutil';
 
-const detail = 'low';
+const detail: Detail = 'low';
 const dir = '/Users/fb/Documents/Github/codeai/examples';
+
 describe('Fbutil', () => {
   describe('parse', async () => {
     const dialog = `## ignore
@@ -12,7 +13,6 @@ this
 # system: Lorem: Ipsum bla
 ## user: Hello Hello,
 I am here.
-dalle: Picture of a cow
 assistant:  How are you?
 user: I am`;
     it('default', async () => {
@@ -29,20 +29,6 @@ user: I am`;
       expect(resultOnly).toStrictEqual([
         { role: 'system', content: 'Lorem: Ipsum bla' },
         { role: 'user', content: 'I am' },
-      ]);
-    });
-    it('dalle', async () => {
-      const resultOnly = await Fbutil.parse(
-        `# system: Lorem: Ipsum bla
-## user: Hello Hello,
-I am here.
-dalle: Picture of a cow`,
-        detail,
-        dir,
-        true
-      );
-      expect(resultOnly).toStrictEqual([
-        { role: 'dalle', content: 'Picture of a cow' },
       ]);
     });
   });
