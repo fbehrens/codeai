@@ -5,7 +5,7 @@ import Fbutil from './fbutil';
 const detail = 'low';
 const dir = '/Users/fb/Documents/Github/codeai/examples';
 describe('Fbutil', () => {
-  describe('parse', async function () {
+  describe('parse', async () => {
     const dialog = `## ignore
 this
 # system: ignore this sytem message
@@ -15,7 +15,7 @@ I am here.
 dalle: Picture of a cow
 assistant:  How are you?
 user: I am`;
-    it('default', async function () {
+    it('default', async () => {
       const result = await Fbutil.parse(dialog, detail, dir, false);
       expect(result).toStrictEqual([
         { role: 'system', content: 'Lorem: Ipsum bla' },
@@ -24,14 +24,14 @@ user: I am`;
         { role: 'user', content: 'I am' },
       ]);
     });
-    it('onePrompt', async function () {
+    it('onePrompt', async () => {
       const resultOnly = await Fbutil.parse(dialog, detail, dir, true);
       expect(resultOnly).toStrictEqual([
         { role: 'system', content: 'Lorem: Ipsum bla' },
         { role: 'user', content: 'I am' },
       ]);
     });
-    it('dalle', async function () {
+    it('dalle', async () => {
       const resultOnly = await Fbutil.parse(
         `# system: Lorem: Ipsum bla
 ## user: Hello Hello,
@@ -46,8 +46,8 @@ dalle: Picture of a cow`,
       ]);
     });
   });
-  describe('Image', async function () {
-    it('http', async function () {
+  describe('Image', async () => {
+    it('http', async () => {
       const result = await Fbutil.parse(
         `user: Hello Hello![](http://image)`,
         detail,
@@ -71,7 +71,7 @@ dalle: Picture of a cow`,
         },
       ]);
     });
-    it('local base64', async function () {
+    it('local base64', async () => {
       const result = await Fbutil.parse(
         `user: Hello Hello![](fbehrens.jpeg)`,
         detail,
