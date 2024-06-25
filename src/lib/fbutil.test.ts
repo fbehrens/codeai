@@ -1,6 +1,6 @@
-import * as assert from 'assert';
+import { describe, it, expect } from 'vitest';
 import { ChatCompletionContentPartImage } from 'openai/resources/chat/completions';
-import Fbutil from '../lib/fbutil';
+import Fbutil from './fbutil';
 
 const detail = 'low';
 const dir = '/Users/fb/Documents/Github/codeai/examples';
@@ -17,7 +17,7 @@ assistant:  How are you?
 user: I am`;
     it('default', async function () {
       const result = await Fbutil.parse(dialog, detail, dir, false);
-      assert.deepEqual(result, [
+      expect(result).toStrictEqual([
         { role: 'system', content: 'Lorem: Ipsum bla' },
         { role: 'user', content: 'Hello Hello,\nI am here.' },
         { role: 'assistant', content: 'How are you?' },
@@ -26,7 +26,7 @@ user: I am`;
     });
     it('onePrompt', async function () {
       const resultOnly = await Fbutil.parse(dialog, detail, dir, true);
-      assert.deepEqual(resultOnly, [
+      expect(resultOnly).toStrictEqual([
         { role: 'system', content: 'Lorem: Ipsum bla' },
         { role: 'user', content: 'I am' },
       ]);
@@ -41,7 +41,7 @@ dalle: Picture of a cow`,
         dir,
         true
       );
-      assert.deepEqual(resultOnly, [
+      expect(resultOnly).toStrictEqual([
         { role: 'dalle', content: 'Picture of a cow' },
       ]);
     });
@@ -54,7 +54,7 @@ dalle: Picture of a cow`,
         dir,
         false
       );
-      assert.deepEqual(result, [
+      expect(result).toStrictEqual([
         {
           role: 'user',
           content: [
@@ -80,8 +80,8 @@ dalle: Picture of a cow`,
       );
       const image = result[0].content![1] as ChatCompletionContentPartImage;
       const base64 = image.image_url.url;
-      assert.match(base64, /^data:image\/jpeg;base64,/);
-      assert.equal(base64.length, 1883);
+      expect(base64).toMatch(/^data:image\/jpeg;base64,/);
+      expect(base64.length).toBe(1883);
     });
   });
 });

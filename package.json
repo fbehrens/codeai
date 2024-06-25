@@ -73,14 +73,11 @@
     "esbuild-base": "esbuild ./src/extension.ts --bundle --outfile=out/extension.js --external:vscode --format=cjs --platform=node",
     "compile": "tsc -p ./",
     "watch": "tsc -watch -p ./",
-    "test": "mocha --watch --watch-files src/lib/*.ts,src/libtest/*.ts",
-    "pretest": "npm run compile && npm run lint",
+    "test": "vitest",
     "lint": "eslint src --ext ts",
-    "format": "prettier --write \"src/**/*.ts\"",
-    "testold": "node ./out/test/runTest.js"
+    "format": "prettier --write \"src/**/*.ts\""
   },
   "devDependencies": {
-    "@types/mocha": "^10.0.1",
     "@types/node": "20.x",
     "@types/vscode": "^1.82.0",
     "@typescript-eslint/eslint-plugin": "^7.2.0",
@@ -89,10 +86,10 @@
     "esbuild": "^0.21.3",
     "eslint": "^8.47.0",
     "glob": "^10.3.3",
-    "mocha": "^10.2.0",
     "prettier": "^3.0.3",
     "ts-node": "^10.9.1",
-    "typescript": "^5.1.6"
+    "typescript": "^5.1.6",
+    "vitest": "^1.6.0"
   },
   "dependencies": {
     "openai": "^4.6.0"
