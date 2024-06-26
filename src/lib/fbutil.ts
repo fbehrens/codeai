@@ -26,22 +26,12 @@ export async function chatGpt(
   m: Message,
   c: Config
 ): Promise<ChatCompletionMessageParam> {
-  async function encodeFileToBase64(filename: string) {
-    const data = await fs.readFile(filename);
-    return data.toString('base64');
-  }
-
-  async function resolveUrl(url: string): Promise<string> {
-    if (url.startsWith('http')) {
-      return url;
+  async function imageTag(url: string) {
+    if (!url.startsWith('http')) {
+      const filename = path.resolve(c.dir, url);
+      const data = await fs.readFile(filename);
+      url = `data:image/jpeg;base64,${data.toString('base64')}`;
     }
-    const filename = path.resolve(c.dir, url);
-    const r = await encodeFileToBase64(filename);
-    return `data:image/jpeg;base64,${r}`;
-  }
-
-  async function imageTag(match: string) {
-    const url = await resolveUrl(match);
     return {
       type: 'image_url',
       // eslint-disable-next-line @typescript-eslint/naming-convention
