@@ -7,6 +7,8 @@ const openai = new OpenAI({
   // apiKey: 'my api key', // defaults to process.env["OPENAI_API_KEY"]
 });
 type Role = 'function' | 'system' | 'user' | 'assistant';
+type Message = { role: Role; content: string };
+
 export type Detail = 'low' | 'high';
 
 export type Config = {
@@ -20,32 +22,15 @@ export function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-/**
- *
- * @param dialog
- * @param detail
- * @param dir
- * @param onlylastPrompt
- * @returns
- */
-export async function parse(
-  dialog: string,
+export async function chatGpt(
+  m: Message,
   c: Config
-): Promise<ChatCompletionMessageParam[]> {
-  /**
-   *
-   * @param filename
-   * @returns
-   */
+): Promise<ChatCompletionMessageParam> {
   async function encodeFileToBase64(filename: string) {
     const data = await fs.readFile(filename);
     return data.toString('base64');
   }
 
-  /**
-   * @param url local or http:
-   * @returns http:// or base64 encoded local image
-   */
   async function resolveUrl(url: string): Promise<string> {
     if (url.startsWith('http')) {
       return url;
@@ -55,7 +40,7 @@ export async function parse(
     return `data:image/jpeg;base64,${r}`;
   }
 
-  const imageTag = async (match: string) => {
+  async function imageTag(match: string) {
     const url = await resolveUrl(match);
     return {
       type: 'image_url',
@@ -65,55 +50,52 @@ export async function parse(
         detail: c.detail,
       },
     };
-  };
+  }
 
-  /**
-   *
-   * @param role
-   * @param content
-   * @param dir
-   * @returns
-   */
-  async function encodeImage(
-    role: Role,
-    content: string,
-    dir: string
-  ): Promise<ChatCompletionMessageParam> {
-    const regexp = /\!\[[^\]]*\]\((.*?)\)/g;
-    const imagesStr = [...content.matchAll(regexp)].map((match) => match[1]);
-    const images = await Promise.all(imagesStr.map(imageTag));
-    if (images.length) {
-      content = content.replaceAll(regexp, '');
-      return {
-        role,
-        content: [
-          {
-            type: 'text',
-            text: content,
-          },
-          ...images,
-        ],
-      } as ChatCompletionMessageParam;
-    }
+  const regexp = /\!\[[^\]]*\]\((.*?)\)/g;
+  const imagesStr = [...m.content.matchAll(regexp)].map((match) => match[1]);
+  const images = await Promise.all(imagesStr.map(imageTag));
+  if (images.length) {
+    const content = m.content.replaceAll(regexp, '');
     return {
-      role,
-      content,
+      role: m.role,
+      content: [
+        {
+          type: 'text',
+          text: content,
+        },
+        ...images,
+      ],
     } as ChatCompletionMessageParam;
   }
+  return m as ChatCompletionMessageParam;
+}
+
+/**
+ *
+ * @param dialog
+ * @param detail
+ * @param dir
+ * @param onlylastPrompt
+ * @returns
+ */
+export async function parse(dialog: string, c: Config): Promise<Message[]> {
   const roles = 'function:|user:|system:|assistant:|dalle:';
   const dialog1 = dialog.replace(
     new RegExp(`\n(#+ )?(?<role>${roles})`, 'g'),
     '\n$<role>'
   ); // ## user: -> user:
   const paragraphs = dialog1.split(new RegExp(`\n(?=${roles})`));
-  let result: ChatCompletionMessageParam[] = [];
+  //   let result: ChatCompletionMessageParam[] = [];
+  let result: Message[] = [];
   for (const paragraph of paragraphs) {
     const colon = paragraph.indexOf(':');
     const r = paragraph.slice(0, colon);
     const content = paragraph.slice(colon + 1).trim();
     const role = r as Role;
-    const mes = await encodeImage(role, content, c.dir);
-    result.push(mes);
+    const m: Message = { role, content };
+    // const mes = await encodeImage(role, content);
+    result.push(m);
   }
   // postprrocessing
   // start from last system prompt

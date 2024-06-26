@@ -3,6 +3,7 @@ import * as vscode from 'vscode';
 import * as Fbutil from './lib/fbutil';
 import * as path from 'path';
 import OpenAI from 'openai';
+import { ChatCompletionMessageParam } from 'openai/resources';
 
 const openai = new OpenAI({});
 const outputChannel = vscode.window.createOutputChannel('Codai');
@@ -90,7 +91,12 @@ export async function chat({
   token,
   c = getConfig(),
 }: ChatParams) {
-  const messages = await Fbutil.parse(content, c);
+  const messages_ = await Fbutil.parse(content, c);
+  const messages = await Promise.all(
+    messages_.map((m) => {
+      return Fbutil.chatGpt(m, c);
+    })
+  );
   outputChannel.appendLine(messagesToString(messages) + `->${c.model}`);
   console.log(messages);
   console.log(`openai completion with model=${c.model}`);
@@ -119,10 +125,10 @@ export async function chat({
 }
 
 export async function dalle() {
-  async function doDalle(description: string): Promise<string> {
+  async function doDalle(prompt: string): Promise<string> {
     const response = await openai.images.generate({
       model: 'dall-e-3',
-      prompt: description,
+      prompt,
       n: 1,
       size: '1024x1024',
     });
@@ -132,11 +138,10 @@ export async function dalle() {
   const editor = vscode.window.activeTextEditor!;
   const position = editor.selection.active;
   const line = editor.document.lineAt(position.line);
-  console.log(line.text);
-  const url: string = await doDalle(line.text);
-  console.log(url);
+  const prompt: string = line.text;
+  const url: string = await doDalle(prompt);
   const newPosition = position.with(position.line, Number.MAX_VALUE);
   editor.edit((editBuilder) => {
-    editBuilder.insert(newPosition, '\n' + `![](${url})`);
+    editBuilder.insert(newPosition, `\n![](${url})`);
   });
 }

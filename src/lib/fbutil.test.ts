@@ -31,33 +31,27 @@ user: I am`;
   });
   describe('Image', async () => {
     it('http', async () => {
-      const result = await Fbutil.parse(
-        `user: Hello Hello![](http://image)`,
-        c
-      );
-      expect(result).toStrictEqual([
-        {
-          role: 'user',
-          content: [
-            { type: 'text', text: 'Hello Hello' },
-            {
-              type: 'image_url',
-              // eslint-disable-next-line @typescript-eslint/naming-convention
-              image_url: {
-                url: 'http://image',
-                detail: c.detail,
-              },
+      const mes = await Fbutil.parse(`user: Hello Hello![](http://image)`, c);
+      const result = await Fbutil.chatGpt(mes[0], c);
+      expect(result).toStrictEqual({
+        role: 'user',
+        content: [
+          { type: 'text', text: 'Hello Hello' },
+          {
+            type: 'image_url',
+            // eslint-disable-next-line @typescript-eslint/naming-convention
+            image_url: {
+              url: 'http://image',
+              detail: c.detail,
             },
-          ],
-        },
-      ]);
+          },
+        ],
+      });
     });
     it('local base64', async () => {
-      const result = await Fbutil.parse(
-        `user: Hello Hello![](fbehrens.jpeg)`,
-        c
-      );
-      const image = result[0].content![1] as ChatCompletionContentPartImage;
+      const m = await Fbutil.parse(`user: Hello Hello![](fbehrens.jpeg)`, c);
+      const mp = await Fbutil.chatGpt(m[0], c);
+      const image = mp.content![1] as ChatCompletionContentPartImage;
       const base64 = image.image_url.url;
       expect(base64).toMatch(/^data:image\/jpeg;base64,/);
       expect(base64.length).toBe(1883);
