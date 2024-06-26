@@ -3,7 +3,7 @@ import {
   ChatCompletionContentPartImage,
   ChatCompletionContentPartText,
 } from 'openai/resources/chat/completions';
-import * as Fbutil from './fbutil';
+import * as Fbutil from '../lib/fbutil';
 
 const c: Fbutil.Config = {
   model: 'gpt-4o',

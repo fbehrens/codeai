@@ -22,6 +22,9 @@ export function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
+/**
+ * Converts message to ChatGPT and extracts ![](url) to chatGpts ChatCompletionMessageParam
+ */
 export async function chatGpt(
   m: Message,
   c: Config

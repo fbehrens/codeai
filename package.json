@@ -73,7 +73,7 @@
     "esbuild-base": "esbuild ./src/extension.ts --bundle --outfile=out/extension.js --external:vscode --format=cjs --platform=node",
     "compile": "tsc -p ./",
     "watch": "tsc -watch -p ./",
-    "test": "vitest --dir src",
+    "test": "vitest --dir src/test",
     "lint": "eslint src --ext ts",
     "format": "prettier --write \"src/**/*.ts\""
   },
