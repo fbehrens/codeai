@@ -6,7 +6,6 @@ import OpenAI from 'openai';
 import { ChatCompletionMessageParam } from 'openai/resources';
 
 const openai = new OpenAI({});
-const outputChannel = vscode.window.createOutputChannel('Codai');
 const config = vscode.workspace.getConfiguration('codai');
 interface MyObject {
   [key: string]: string;
@@ -78,50 +77,6 @@ export function messagesToString(
     out += m.role + ': ' + m.content! + '\n';
   }
   return out;
-}
-
-interface ChatParams {
-  content?: string;
-  token?: vscode.CancellationToken;
-  c?: Fbutil.Config;
-}
-
-export async function chat({
-  content = getQuestion(),
-  token,
-  c = getConfig(),
-}: ChatParams) {
-  const messages_ = await Fbutil.parse(content, c);
-  const messages = await Promise.all(
-    messages_.map((m) => {
-      return Fbutil.chatGpt(m, c);
-    })
-  );
-  outputChannel.appendLine(messagesToString(messages) + `->${c.model}`);
-  console.log(messages);
-  console.log(`openai completion with model=${c.model}`);
-  const stream = await openai.chat.completions.create({
-    messages,
-    model: c.model,
-    stream: true,
-  });
-  const lid: string = vscode.window.activeTextEditor?.document.languageId!;
-  let first = true;
-  //   await Fbutil.sleep(2000);
-  for await (const part of stream) {
-    let d;
-    if (token && token.isCancellationRequested) {
-      return;
-    }
-    if ((d = part.choices[0]?.delta)) {
-      if (first && lid === 'markdown') {
-        first = false;
-        await c.out(`${d.role}:\n${d.content}`);
-      } else {
-        await c.out(d.content!);
-      }
-    }
-  }
 }
 
 export async function dalle() {
