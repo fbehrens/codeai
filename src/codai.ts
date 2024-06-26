@@ -1,6 +1,7 @@
 // const vscode = require('vscode');
 import * as vscode from 'vscode';
 import * as Fbutil from './lib/fbutil';
+import * as path from 'path';
 import OpenAI from 'openai';
 
 const openai = new OpenAI({});
@@ -10,11 +11,23 @@ interface MyObject {
   [key: string]: string;
 }
 
+function getConfig(
+  file = vscode.window.activeTextEditor?.document.uri.path!,
+  out = pasteStreamingResponse
+): Fbutil.Config {
+  return {
+    model: config.get<string>('model')!,
+    detail: config.get<Fbutil.Detail>('detail')!,
+    dir: path.dirname(file),
+    out,
+  };
+}
+
 /**
- *
+ * if
  * @returns
  */
-export function getQuestion() {
+export function getQuestion(): string {
   const e = vscode.window.activeTextEditor!;
   const d = e.document!;
   const s = e.selection;
@@ -40,7 +53,7 @@ export function getQuestion() {
 }
 
 /**
- *
+ * will be called by streaming OpenAi response
  * @param s
  */
 export async function pasteStreamingResponse(s: string) {
@@ -54,7 +67,7 @@ export async function pasteStreamingResponse(s: string) {
 /**
  *
  * @param messages
- * @returns
+ * @returns string repesentation of api
  */
 export function messagesToString(
   messages: OpenAI.Chat.Completions.ChatCompletionMessageParam[]
@@ -66,48 +79,40 @@ export function messagesToString(
   return out;
 }
 
-/**
- *
- * @param content
- * @param model
- * @param detail
- * @param dir
- * @param onlylastPromt
- * @param token
- * @param out
- * @returns
- */
-export async function chat(
-  content: string,
-  model: string,
-  detail: Fbutil.Detail,
-  dir: string,
-  onlylastPromt: boolean,
-  token: vscode.CancellationToken,
-  out: (param: string) => void
-) {
-  const messages = await Fbutil.parse(content, detail, dir, onlylastPromt);
-  outputChannel.appendLine(messagesToString(messages) + `->${model}`);
+interface ChatParams {
+  content?: string;
+  token?: vscode.CancellationToken;
+  c?: Fbutil.Config;
+}
+
+export async function chat({
+  content = getQuestion(),
+  token,
+  c = getConfig(),
+}: ChatParams) {
+  const messages = await Fbutil.parse(content, c);
+  outputChannel.appendLine(messagesToString(messages) + `->${c.model}`);
   console.log(messages);
-  console.log(`openai completion with model=${model}`);
+  console.log(`openai completion with model=${c.model}`);
   const stream = await openai.chat.completions.create({
     messages,
-    model,
+    model: c.model,
     stream: true,
   });
   const lid: string = vscode.window.activeTextEditor?.document.languageId!;
   let first = true;
+  //   await Fbutil.sleep(2000);
   for await (const part of stream) {
     let d;
-    if (token.isCancellationRequested) {
+    if (token && token.isCancellationRequested) {
       return;
     }
     if ((d = part.choices[0]?.delta)) {
       if (first && lid === 'markdown') {
         first = false;
-        await out(`${d.role}:\n${d.content}`);
+        await c.out(`${d.role}:\n${d.content}`);
       } else {
-        await out(d.content!);
+        await c.out(d.content!);
       }
     }
   }

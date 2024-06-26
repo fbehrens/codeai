@@ -65,10 +65,6 @@
       {
         "command": "codai.dalle",
         "title": "Codai: Dalle"
-      },
-      {
-        "command": "codai.chat_completion_one",
-        "title": "Codai: Chat Completion (one Prompt)"
       }
     ]
   },

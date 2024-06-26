@@ -4,8 +4,6 @@ import * as Fbutil from './lib/fbutil';
 import * as path from 'path';
 
 export function activate(context: vscode.ExtensionContext) {
-  const config = vscode.workspace.getConfiguration('codai');
-
   // Stop Genarating button
   const stopGeneratingButton = vscode.window.createStatusBarItem(
     vscode.StatusBarAlignment.Left
@@ -16,25 +14,12 @@ export function activate(context: vscode.ExtensionContext) {
 
   let tokenSource: vscode.CancellationTokenSource | undefined;
 
-  async function chatCompletion(onePromt: boolean) {
+  async function chatCompletion() {
     stopGeneratingButton.show();
-    const model = config.get<string>('model')!; // ! is non-null assertion operator
-    const detail = config.get<Fbutil.Detail>('detail')!;
-    const dir = path.dirname(
-      vscode.window.activeTextEditor?.document.uri.path!
-    );
     tokenSource = new vscode.CancellationTokenSource();
     const text = Codai.getQuestion();
     if (text !== null) {
-      await Codai.chat(
-        text,
-        model,
-        detail,
-        dir,
-        onePromt,
-        tokenSource.token,
-        Codai.pasteStreamingResponse
-      );
+      await Codai.chat({ token: tokenSource.token });
     }
     stopGeneratingButton.hide();
   }
@@ -46,19 +31,13 @@ export function activate(context: vscode.ExtensionContext) {
 
   context.subscriptions.push(
     vscode.commands.registerCommand('codai.chat_completion', async () => {
-      await chatCompletion(false);
+      await chatCompletion();
     })
   );
 
   context.subscriptions.push(
     vscode.commands.registerCommand('codai.dalle', async () => {
       await Codai.dalle();
-    })
-  );
-
-  context.subscriptions.push(
-    vscode.commands.registerCommand('codai.chat_completion_one', () => {
-      chatCompletion(true);
     })
   );
 }

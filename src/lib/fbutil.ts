@@ -9,7 +9,14 @@ const openai = new OpenAI({
 type Role = 'function' | 'system' | 'user' | 'assistant';
 export type Detail = 'low' | 'high';
 
-function sleep(ms: number): Promise<void> {
+export type Config = {
+  model: string;
+  detail: Detail;
+  out: (a: string) => void;
+  dir: string;
+};
+
+export function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
@@ -23,9 +30,7 @@ function sleep(ms: number): Promise<void> {
  */
 export async function parse(
   dialog: string,
-  detail: Detail,
-  dir: string,
-  onlylastPrompt: boolean
+  c: Config
 ): Promise<ChatCompletionMessageParam[]> {
   /**
    *
@@ -45,7 +50,7 @@ export async function parse(
     if (url.startsWith('http')) {
       return url;
     }
-    const filename = path.resolve(dir, url);
+    const filename = path.resolve(c.dir, url);
     const r = await encodeFileToBase64(filename);
     return `data:image/jpeg;base64,${r}`;
   }
@@ -57,7 +62,7 @@ export async function parse(
       // eslint-disable-next-line @typescript-eslint/naming-convention
       image_url: {
         url,
-        detail: detail,
+        detail: c.detail,
       },
     };
   };
@@ -107,18 +112,13 @@ export async function parse(
     const r = paragraph.slice(0, colon);
     const content = paragraph.slice(colon + 1).trim();
     const role = r as Role;
-    const mes = await encodeImage(role, content, dir);
+    const mes = await encodeImage(role, content, c.dir);
     result.push(mes);
   }
   // postprrocessing
   // start from last system prompt
   let lastSystemIndex = result.findLastIndex((e) => e.role === 'system');
   result = result.slice(lastSystemIndex);
-
-  // onlylastPrompt
-  if (onlylastPrompt) {
-    result = [result[0], result[result.length - 1]];
-  }
 
   // when last is dalle => remove everything
   const last = result[result.length - 1];
