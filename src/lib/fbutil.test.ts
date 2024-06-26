@@ -1,8 +1,8 @@
 import { describe, it, expect } from 'vitest';
 import { ChatCompletionContentPartImage } from 'openai/resources/chat/completions';
-import Fbutil, { Detail } from './fbutil';
+import * as Fbutil from './fbutil';
 
-const detail: Detail = 'low';
+const detail: Fbutil.Detail = 'low';
 const dir = '/Users/fb/Documents/Github/codeai/examples';
 
 describe('Fbutil', () => {
