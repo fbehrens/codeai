@@ -1,5 +1,8 @@
 import { describe, it, expect } from 'vitest';
-import { ChatCompletionContentPartImage } from 'openai/resources/chat/completions';
+import {
+  ChatCompletionContentPartImage,
+  ChatCompletionContentPartText,
+} from 'openai/resources/chat/completions';
 import * as Fbutil from './fbutil';
 
 const c: Fbutil.Config = {
@@ -51,6 +54,10 @@ user: I am`;
     it('local base64', async () => {
       const m = await Fbutil.parse(`user: Hello Hello![](fbehrens.jpeg)`, c);
       const mp = await Fbutil.chatGpt(m[0], c);
+
+      const text = mp.content![0] as ChatCompletionContentPartText;
+      expect(text).toStrictEqual({ type: 'text', text: 'Hello Hello' });
+
       const image = mp.content![1] as ChatCompletionContentPartImage;
       const base64 = image.image_url.url;
       expect(base64).toMatch(/^data:image\/jpeg;base64,/);
