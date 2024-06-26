@@ -12,7 +12,7 @@ interface MyObject {
   [key: string]: string;
 }
 
-function getConfig(
+export function getConfig(
   file = vscode.window.activeTextEditor?.document.uri.path!,
   out = pasteStreamingResponse
 ): Fbutil.Config {

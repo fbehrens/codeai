@@ -60,7 +60,11 @@
     "commands": [
       {
         "command": "codai.chat_completion",
-        "title": "Codai: Chat Completion"
+        "title": "Codai: OpenAi Chat Completion"
+      },
+      {
+        "command": "codai.claude_completion",
+        "title": "Codai: Claude Chat Completion"
       },
       {
         "command": "codai.dalle",
@@ -92,6 +96,7 @@
     "vitest": "^1.6.0"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.24.1",
     "openai": "^4.6.0"
   }
 }
