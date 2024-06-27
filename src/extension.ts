@@ -2,14 +2,14 @@ import * as vscode from 'vscode';
 import * as Codai from './codai';
 import Anthropic from '@anthropic-ai/sdk';
 import OpenAI from 'openai';
+import { parse, chatGpt, sleep, Message } from './lib/fbutil';
+import { Config } from './codai';
 const openai = new OpenAI({});
+const client = new Anthropic();
 const outputChannel = vscode.window.createOutputChannel('Codai');
 let abortController: AbortController | null = null;
 
-import { parse, chatGpt, sleep, Message, Config } from './lib/fbutil';
-
 export function activate(context: vscode.ExtensionContext) {
-  // Stop Genarating button
   const stopGeneratingButton = vscode.window.createStatusBarItem(
     vscode.StatusBarAlignment.Left
   );
@@ -29,7 +29,6 @@ export function activate(context: vscode.ExtensionContext) {
       await Codai.dalle();
     })
   );
-  const client = new Anthropic();
   type ProviderParams = {
     mess: Message[];
     abortController: AbortController;
@@ -45,15 +44,13 @@ export function activate(context: vscode.ExtensionContext) {
     claude: async ({
       mess = [],
       abortController = new AbortController(),
-      c = Codai.getConfig(),
+      c,
     }: ProviderParams) => {
-      console.log({ mess });
       let system: string | undefined;
       if (mess[0].role === 'system') {
         const mess0 = mess.shift();
         system = mess0?.content;
       }
-      console.log({ mess, system });
       const messages = mess.map((m) => {
         return m as Anthropic.Messages.MessageParam;
       });
@@ -67,9 +64,7 @@ export function activate(context: vscode.ExtensionContext) {
         },
         { signal: abortController.signal }
       );
-      let first = true;
       for await (const m of stream) {
-        console.log(m);
         if (abortController.signal.aborted) {
           throw new vscode.CancellationError();
         }
@@ -77,12 +72,7 @@ export function activate(context: vscode.ExtensionContext) {
           m.type === 'content_block_delta' &&
           m.delta?.type === 'text_delta'
         ) {
-          if (first && c.languageId === 'markdown') {
-            first = false;
-            await c.out(`assistant:\n${m.delta.text}`);
-          } else {
-            await c.out(m.delta.text);
-          }
+          await c.out(m.delta.text);
         }
       }
     },
@@ -107,19 +97,13 @@ export function activate(context: vscode.ExtensionContext) {
           signal: abortController.signal,
         }
       );
-      let first = true;
       for await (const part of stream) {
         if (abortController.signal.aborted) {
           throw new vscode.CancellationError();
         }
         let d;
         if ((d = part.choices[0]?.delta)) {
-          if (first && c.languageId === 'markdown') {
-            first = false;
-            await c.out(`${d.role}:\n${d.content}`);
-          } else {
-            await c.out(d.content!);
-          }
+          await c.out(d.content!);
         }
       }
     },
@@ -127,10 +111,11 @@ export function activate(context: vscode.ExtensionContext) {
 
   async function completion(provider: ProviderName) {
     abortController = new AbortController();
+    stopGeneratingButton.show();
     const content = Codai.getQuestion();
     const c = Codai.getConfig();
     const mess = await parse(content, c);
-    stopGeneratingButton.show();
+    outputChannel.appendLine(Codai.messagesToString(mess));
     try {
       await providers[provider]({
         mess,

@@ -4,8 +4,9 @@ import {
   ChatCompletionContentPartText,
 } from 'openai/resources/chat/completions';
 import * as Fbutil from '../lib/fbutil';
+import { Config } from '../codai';
 
-const c: Fbutil.Config = {
+const c: Config = {
   model: 'gpt-4o',
   detail: 'low',
   dir: '/Users/fb/Documents/Github/codeai/examples',

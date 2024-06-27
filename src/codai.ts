@@ -4,6 +4,7 @@ import * as Fbutil from './lib/fbutil';
 import * as path from 'path';
 import OpenAI from 'openai';
 import { ChatCompletionMessageParam } from 'openai/resources';
+import { Detail } from './lib/fbutil';
 
 const openai = new OpenAI({});
 const config = vscode.workspace.getConfiguration('codai');
@@ -11,16 +12,26 @@ interface MyObject {
   [key: string]: string;
 }
 
+export type Config = {
+  model: string;
+  detail: Detail;
+  out: (a: string) => void;
+  dir: string;
+  languageId: string;
+};
+
 export function getConfig(
   file = vscode.window.activeTextEditor?.document.uri.path!,
-  out = pasteStreamingResponse
-): Fbutil.Config {
+  languageId = vscode.window.activeTextEditor?.document.languageId!,
+  out = pasteStreamingResponse(languageId)
+): Config {
+  console.log({ languageId });
   return {
     model: config.get<string>('model')!,
     detail: config.get<Fbutil.Detail>('detail')!,
     dir: path.dirname(file),
     out,
-    languageId: vscode.window.activeTextEditor?.document.languageId!,
+    languageId,
   };
 }
 
@@ -53,31 +64,25 @@ export function getQuestion(): string {
   return '';
 }
 
-/**
- * will be called by streaming OpenAi response
- * @param s
- */
-export async function pasteStreamingResponse(s: string) {
+function pasteStreamingResponse(languageId: string) {
   const editor = vscode.window.activeTextEditor!;
-  await editor.edit((editBuilder) => {
-    const position = editor.selection.end;
-    editBuilder.insert(position, s);
-  });
+  let first = true;
+  return async (s: string) => {
+    const output = first && languageId === 'markdown' ? `assistant:\n${s}` : s;
+    first = false;
+    await editor.edit((editBuilder) => {
+      const position = editor.selection.end;
+      editBuilder.insert(position, output);
+    });
+  };
 }
 
-/**
- *
- * @param messages
- * @returns string repesentation of api
- */
-export function messagesToString(
-  messages: OpenAI.Chat.Completions.ChatCompletionMessageParam[]
-): string {
-  let out: string = '';
-  for (const m of messages) {
-    out += m.role + ': ' + m.content! + '\n';
-  }
-  return out;
+export function messagesToString(mess: Fbutil.Message[]): string {
+  return mess
+    .map((m) => {
+      return m.role + ': ' + m.content + '\n';
+    })
+    .join('\n');
 }
 
 export async function dalle() {

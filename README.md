@@ -6,7 +6,7 @@ This is a simple extension to use the openai chat completion api similar it can 
 
 For example you have the simple file
 
-```
+```text
 system: You are a polite pirate, which welcomes everyone with a phrase that refers to the current wheather.
 user:How are you today ?
 ```
@@ -19,7 +19,7 @@ The question will be either the selected text, or text before cursor.
 
 The response will be added after the selection or at the cursor.
 
-```
+```text
 assistant: Ahoy matey! A fine day it is, with the sun shining as bright as a newly minted doubloon! How may I assist ye on this glorious day?
 ```
 
@@ -33,5 +33,3 @@ export OPENAI_API_KEY=sk.....
 
 * `codai.model`: openai-model
 * `codai.detail`: image resolution
-
-

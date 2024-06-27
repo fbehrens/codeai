@@ -2,6 +2,7 @@ import OpenAI from 'openai';
 import { ChatCompletionMessageParam } from 'openai/resources';
 import * as fs from 'fs/promises';
 import * as path from 'path';
+import { Config } from '../codai';
 
 const openai = new OpenAI({
   // apiKey: 'my api key', // defaults to process.env["OPENAI_API_KEY"]
@@ -10,14 +11,6 @@ type Role = 'function' | 'system' | 'user' | 'assistant';
 export type Message = { role: Role; content: string };
 
 export type Detail = 'low' | 'high';
-
-export type Config = {
-  model: string;
-  detail: Detail;
-  out: (a: string) => void;
-  dir: string;
-  languageId: string;
-};
 
 export function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
