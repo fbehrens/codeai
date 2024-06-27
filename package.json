@@ -59,7 +59,7 @@
     },
     "commands": [
       {
-        "command": "codai.chat_completion",
+        "command": "codai.openai_completion",
         "title": "Codai: OpenAi Chat Completion"
       },
       {

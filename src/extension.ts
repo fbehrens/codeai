@@ -40,7 +40,8 @@ export function activate(context: vscode.ExtensionContext) {
     abortController,
     c,
   }: ProviderParams) => Promise<void>;
-  const providers = {
+  type ProviderName = 'claude' | 'openai';
+  const providers: Record<ProviderName, ProviderFunction> = {
     claude: async ({
       mess = [],
       abortController = new AbortController(),
@@ -92,7 +93,6 @@ export function activate(context: vscode.ExtensionContext) {
         }
       );
       let first = true;
-      // await sleep(3000);
       for await (const part of stream) {
         if (abortController.signal.aborted) {
           throw new vscode.CancellationError();
@@ -110,17 +110,17 @@ export function activate(context: vscode.ExtensionContext) {
     },
   };
 
-  async function completion(provider: string) {
+  async function completion(provider: ProviderName) {
     abortController = new AbortController();
     const content = Codai.getQuestion();
-    const mess = await parse(content, Codai.getConfig());
+    const c = Codai.getConfig();
+    const mess = await parse(content, c);
     stopGeneratingButton.show();
     try {
-      const providerFunction = providers[provider as keyof typeof providers];
-      await providerFunction({
+      await providers[provider]({
         mess,
         abortController,
-        c: Codai.getConfig(),
+        c,
       });
     } catch (error) {
       if (error instanceof vscode.CancellationError) {
@@ -134,7 +134,7 @@ export function activate(context: vscode.ExtensionContext) {
     }
   }
   context.subscriptions.push(
-    vscode.commands.registerCommand('codai.chat_completion', async () => {
+    vscode.commands.registerCommand('codai.openai_completion', async () => {
       await completion('openai');
     })
   );
@@ -142,13 +142,6 @@ export function activate(context: vscode.ExtensionContext) {
   context.subscriptions.push(
     vscode.commands.registerCommand('codai.claude_completion', async () => {
       await completion('claude');
-    })
-  );
-  context.subscriptions.push(
-    vscode.commands.registerCommand('codai.stopClaude', () => {
-      if (abortController) {
-        abortController.abort();
-      }
     })
   );
 }
