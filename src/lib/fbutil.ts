@@ -7,7 +7,7 @@ const openai = new OpenAI({
   // apiKey: 'my api key', // defaults to process.env["OPENAI_API_KEY"]
 });
 type Role = 'function' | 'system' | 'user' | 'assistant';
-type Message = { role: Role; content: string };
+export type Message = { role: Role; content: string };
 
 export type Detail = 'low' | 'high';
 
@@ -16,6 +16,7 @@ export type Config = {
   detail: Detail;
   out: (a: string) => void;
   dir: string;
+  languageId: string;
 };
 
 export function sleep(ms: number): Promise<void> {

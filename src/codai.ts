@@ -20,6 +20,7 @@ export function getConfig(
     detail: config.get<Fbutil.Detail>('detail')!,
     dir: path.dirname(file),
     out,
+    languageId: vscode.window.activeTextEditor?.document.languageId!,
   };
 }
 

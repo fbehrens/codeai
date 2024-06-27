@@ -10,6 +10,7 @@ const c: Fbutil.Config = {
   detail: 'low',
   dir: '/Users/fb/Documents/Github/codeai/examples',
   out: (s: string) => {},
+  languageId: 'markdown',
 };
 
 describe('Fbutil', () => {
