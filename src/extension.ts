@@ -47,27 +47,42 @@ export function activate(context: vscode.ExtensionContext) {
       abortController = new AbortController(),
       c = Codai.getConfig(),
     }: ProviderParams) => {
-      console.log('i am claude');
+      console.log({ mess });
+      let system: string | undefined;
+      if (mess[0].role === 'system') {
+        const mess0 = mess.shift();
+        system = mess0?.content;
+      }
+      console.log({ mess, system });
       const messages = mess.map((m) => {
         return m as Anthropic.Messages.MessageParam;
       });
       const stream = await client.messages.stream(
-        // eslint-disable-next-line @typescript-eslint/naming-convention
-        { messages, model: 'claude-3-5-sonnet-20240620', max_tokens: 1024 },
+        {
+          messages,
+          model: 'claude-3-5-sonnet-20240620',
+          // eslint-disable-next-line @typescript-eslint/naming-convention
+          max_tokens: 1024,
+          system,
+        },
         { signal: abortController.signal }
       );
-      for await (const message of stream) {
+      let first = true;
+      for await (const m of stream) {
+        console.log(m);
         if (abortController.signal.aborted) {
           throw new vscode.CancellationError();
         }
-        if (message.type === 'message_start') {
-          Codai.pasteStreamingResponse(`${message.message.role}: `);
-        }
         if (
-          message.type === 'content_block_delta' &&
-          message.delta?.type === 'text_delta'
+          m.type === 'content_block_delta' &&
+          m.delta?.type === 'text_delta'
         ) {
-          c.out(message.delta.text);
+          if (first && c.languageId === 'markdown') {
+            first = false;
+            await c.out(`assistant:\n${m.delta.text}`);
+          } else {
+            await c.out(m.delta.text);
+          }
         }
       }
     },
