@@ -1,13 +1,10 @@
 import * as vscode from 'vscode';
 import * as Fbutil from './lib/fbutil';
 import * as path from 'path';
-import OpenAI from 'openai';
-import { Detail } from './lib/fbutil';
 
-const openai = new OpenAI({});
 export type Config = {
   model: string;
-  detail: Detail;
+  detail: Fbutil.Detail;
   out: (a: string) => void;
   dir: string;
   languageId: string;
@@ -74,21 +71,16 @@ export function messagesToString(mess: Fbutil.Message[]): string {
     .join('\n');
 }
 
-export async function dalle() {
-  async function doDalle(prompt: string): Promise<string> {
-    const response = await openai.images.generate({
-      model: 'dall-e-3',
-      prompt,
-      n: 1,
-      size: '1024x1024',
-    });
-    return response.data[0].url as string;
-  }
+/**
+ * gets Current line, calls Dalle, and inserts  markdown link to image in the next line
+ * @param f
+ */
+export async function dalle(f: (s: string) => Promise<string>) {
   const editor = vscode.window.activeTextEditor!;
   const position = editor.selection.active;
   const line = editor.document.lineAt(position.line);
   const prompt: string = line.text;
-  const url: string = await doDalle(prompt);
+  const url: string = await f(prompt);
   const newPosition = position.with(position.line, Number.MAX_VALUE);
   editor.edit((editBuilder) => {
     editBuilder.insert(newPosition, `\n![](${url})`);

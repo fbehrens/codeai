@@ -5,9 +5,19 @@ import OpenAI from 'openai';
 import { parse, chatGpt, sleep, Message } from './lib/fbutil';
 import { Config } from './codai';
 const openai = new OpenAI({});
-const client = new Anthropic();
+const antropic = new Anthropic();
 const outputChannel = vscode.window.createOutputChannel('Codai');
 let abortController: AbortController | null = null;
+
+async function doDalle(prompt: string): Promise<string> {
+  const response = await openai.images.generate({
+    model: 'dall-e-3',
+    prompt,
+    n: 1,
+    size: '1024x1024',
+  });
+  return response.data[0].url as string;
+}
 
 export function activate(context: vscode.ExtensionContext) {
   const stopGeneratingButton = vscode.window.createStatusBarItem(
@@ -26,7 +36,7 @@ export function activate(context: vscode.ExtensionContext) {
 
   context.subscriptions.push(
     vscode.commands.registerCommand('codai.dalle', async () => {
-      await Codai.dalle();
+      await Codai.dalle(doDalle);
     })
   );
   type ProviderParams = {
@@ -54,7 +64,7 @@ export function activate(context: vscode.ExtensionContext) {
       const messages = mess.map((m) => {
         return m as Anthropic.Messages.MessageParam;
       });
-      const stream = await client.messages.stream(
+      const stream = await antropic.messages.stream(
         {
           messages,
           model: 'claude-3-5-sonnet-20240620',
