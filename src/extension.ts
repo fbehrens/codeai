@@ -79,7 +79,7 @@ export function activate(context: vscode.ExtensionContext) {
     openai: async ({
       mess = [],
       abortController = new AbortController(),
-      c = Codai.getConfig(),
+      c,
     }: ProviderParams) => {
       console.log('i am openai');
       const messages = await Promise.all(
@@ -112,8 +112,8 @@ export function activate(context: vscode.ExtensionContext) {
   async function completion(provider: ProviderName) {
     abortController = new AbortController();
     stopGeneratingButton.show();
-    const content = Codai.getQuestion();
-    const c = Codai.getConfig();
+    const c = Codai.getConfig({});
+    const content = Codai.getQuestion(c);
     const mess = await parse(content, c);
     outputChannel.appendLine(Codai.messagesToString(mess));
     try {
