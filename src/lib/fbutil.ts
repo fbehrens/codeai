@@ -87,9 +87,13 @@ export async function parse(dialog: string, c: Config): Promise<Message[]> {
   // postprrocessing
   // start from last system prompt
   let lastSystemIndex = result.findLastIndex((e) => e.role === 'system');
-  result = result.slice(lastSystemIndex);
+  const fromLastS = result.slice(lastSystemIndex);
+  if (fromLastS[0].content === '') {
+    const lastSystemContentIndex = result.findLastIndex(
+      (e) => e.role === 'system' && e.content !== ''
+    );
+    fromLastS[0].content = result[lastSystemContentIndex].content;
+  }
 
-  // when last is dalle => remove everything
-  const last = result[result.length - 1];
-  return result;
+  return fromLastS;
 }

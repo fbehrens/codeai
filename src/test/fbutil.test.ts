@@ -19,7 +19,7 @@ describe('Fbutil', () => {
     const dialog = `## ignore
 this
 # system: ignore this sytem message
-# system: Lorem: Ipsum bla
+# system: You are a cat
 ## user: Hello Hello,
 I am here.
 assistant:  How are you?
@@ -27,10 +27,20 @@ user: I am`;
     it('default', async () => {
       const result = await Fbutil.parse(dialog, c);
       expect(result).toStrictEqual([
-        { role: 'system', content: 'Lorem: Ipsum bla' },
+        { role: 'system', content: 'You are a cat' },
         { role: 'user', content: 'Hello Hello,\nI am here.' },
         { role: 'assistant', content: 'How are you?' },
         { role: 'user', content: 'I am' },
+      ]);
+    });
+    it('empty system message fills itself from last', async () => {
+      const dialog1 = `${dialog}
+system:
+user: What do you eat`;
+      const result = await Fbutil.parse(dialog1, c);
+      expect(result).toStrictEqual([
+        { role: 'system', content: 'You are a cat' },
+        { role: 'user', content: 'What do you eat' },
       ]);
     });
   });
