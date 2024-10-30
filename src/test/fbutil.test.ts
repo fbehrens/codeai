@@ -8,6 +8,7 @@ import { Config } from '../codai';
 
 const c: Config = {
   model: 'gpt-4o',
+  claudeModel: 'claude-3-5-sonnet-20241022',
   detail: 'low',
   dir: '/Users/fb/Documents/Github/codeai/examples',
   out: (s: string) => {},

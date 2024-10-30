@@ -46,6 +46,15 @@
           ],
           "description": "openai model"
         },
+        "codai.claudeModel": {
+          "type": "string",
+          "default": "claude-3-5-sonnet-20241022",
+          "enum": [
+            "claude-3-5-sonnet-20241022",
+            "claude-3-5-sonnet-20240620"
+          ],
+          "description": "claude model"
+        },
         "codai.detail": {
           "type": "string",
           "default": "low",

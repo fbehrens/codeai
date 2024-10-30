@@ -62,18 +62,19 @@ export function activate(context: vscode.ExtensionContext) {
         system = mess0?.content;
       }
       const messages = mess.map((m) => {
-        return m as Anthropic.Messages.MessageParam;
-      });
-      const stream = await antropic.messages.stream(
-        {
+          return m as Anthropic.Messages.MessageParam;
+        }),
+        body = {
           messages,
-          model: 'claude-3-5-sonnet-20240620',
+          model: c.claudeModel,
           // eslint-disable-next-line @typescript-eslint/naming-convention
           max_tokens: 1024,
           system,
-        },
-        { signal: abortController.signal }
-      );
+        };
+      console.log(body);
+      const stream = await antropic.messages.stream(body, {
+        signal: abortController.signal,
+      });
       for await (const m of stream) {
         if (abortController.signal.aborted) {
           throw new vscode.CancellationError();
